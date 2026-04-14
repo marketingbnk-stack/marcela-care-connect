@@ -17,7 +17,6 @@ const items = [
   { title: "Pipeline", url: "/pipeline", icon: Kanban },
   { title: "Leads", url: "/leads", icon: Users },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
-  { title: "Admin", url: "/admin", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -56,6 +55,22 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <div className="mt-auto border-t border-sidebar-border">
+        <SidebarMenu className="p-2">
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="h-11">
+              <NavLink
+                to="/admin"
+                className="flex items-center gap-3 px-4 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors rounded-lg"
+                activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
+              >
+                <Settings className="h-5 w-5 shrink-0" />
+                {!collapsed && <span>Admin</span>}
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </div>
     </Sidebar>
   );
 }
