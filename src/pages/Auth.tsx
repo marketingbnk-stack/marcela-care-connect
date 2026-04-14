@@ -69,7 +69,7 @@ export default function Auth() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4">
         <Card className="w-full max-w-md shadow-xl border-primary/10 text-center">
           <CardHeader className="space-y-4">
-            <img src={logoImg} alt="Marcela Cammarota" className="h-20 mx-auto object-contain" />
+            <img src={logoImg} alt="Marcela Cammarota" className="h-10 mx-auto object-contain" />
             <CardTitle className="text-xl font-['Montserrat']">Verifique seu email</CardTitle>
             <CardDescription className="text-base">
               Enviamos um link de acesso para <strong>{email}</strong>. Clique no link para entrar no CRM.
@@ -91,9 +91,9 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4">
-      <Card className="w-full max-w-md shadow-xl border-primary/10">
+      <Card className="w-full max-w-md shadow-xl border-primary/10 min-h-[500px] flex flex-col justify-center">
         <CardHeader className="text-center space-y-4">
-          <img src={logoImg} alt="Marcela Cammarota" className="h-20 mx-auto object-contain" />
+          <img src={logoImg} alt="Marcela Cammarota" className="h-10 mx-auto object-contain" />
           <CardTitle className="text-xl font-['Montserrat']">
             {isLogin ? "Acessar o CRM" : "Criar Conta"}
           </CardTitle>
