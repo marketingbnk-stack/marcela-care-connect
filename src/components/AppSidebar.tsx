@@ -1,4 +1,4 @@
-import { LayoutDashboard, Kanban, Users, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Kanban, Users, BarChart3, Settings } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import logoImg from "@/assets/logo-branco.png";
 import {
@@ -17,6 +17,7 @@ const items = [
   { title: "Pipeline", url: "/pipeline", icon: Kanban },
   { title: "Leads", url: "/leads", icon: Users },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
+  { title: "Admin", url: "/admin", icon: Settings },
 ];
 
 export function AppSidebar() {

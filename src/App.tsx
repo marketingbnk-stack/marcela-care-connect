@@ -9,6 +9,7 @@ import Pipeline from "./pages/Pipeline";
 import Leads from "./pages/Leads";
 import LeadDetail from "./pages/LeadDetail";
 import Relatorios from "./pages/Relatorios";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
