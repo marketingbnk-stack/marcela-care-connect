@@ -56,8 +56,7 @@ export default function Pipeline() {
   );
 }
 
-function LeadCard({ lead, onDragStart }: { lead: Lead; onDragStart: (id: string) => void }) {
-  const navigate = useNavigate();
+function LeadCard({ lead, onDragStart, onSelect }: { lead: Lead; onDragStart: (id: string) => void; onSelect: (lead: Lead) => void }) {
   const { moveLead } = useLeads();
   const currentStage = PIPELINE_STAGES.find(s => s.id === lead.stage);
 
@@ -65,6 +64,7 @@ function LeadCard({ lead, onDragStart }: { lead: Lead; onDragStart: (id: string)
     <div
       draggable
       onDragStart={() => onDragStart(lead.id)}
+      onClick={() => onSelect(lead)}
       className="bg-card rounded-lg p-3 shadow-sm border cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
     >
       <div className="flex items-start justify-between gap-2">
@@ -104,14 +104,6 @@ function LeadCard({ lead, onDragStart }: { lead: Lead; onDragStart: (id: string)
         </Badge>
         <div className="flex items-center gap-1">
           <span className="text-[10px] text-muted-foreground">{timeAgo(lead.created_at)}</span>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-7 w-7"
-            onClick={e => { e.stopPropagation(); navigate(`/leads/${lead.id}`); }}
-          >
-            <Eye className="h-3.5 w-3.5" />
-          </Button>
           <Button
             size="icon"
             variant="ghost"
