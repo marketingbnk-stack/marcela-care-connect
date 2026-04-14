@@ -35,6 +35,7 @@ export function CRMLayout({ children, title }: CRMLayoutProps) {
         </div>
       </div>
       <NewLeadDialog open={newLeadOpen} onOpenChange={setNewLeadOpen} />
+      <CrmAssistant />
     </SidebarProvider>
   );
 }
