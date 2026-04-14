@@ -38,11 +38,11 @@ export default function Pipeline() {
               onDragOver={e => e.preventDefault()}
               onDrop={() => handleDrop(stage.id)}
             >
-              <div className="flex items-center gap-2 mb-3 px-1">
-                <h3 className="text-sm font-semibold text-foreground">{stage.label}</h3>
-                <Badge variant="secondary" className="text-xs">{stageLeads.length}</Badge>
+              <div className={`flex items-center gap-2 mb-3 px-2 py-1.5 rounded-lg ${stage.id === "fornecedor" ? "bg-orange-100 border border-orange-300" : ""}`}>
+                <h3 className={`text-sm font-semibold ${stage.id === "fornecedor" ? "text-orange-700" : "text-foreground"}`}>{stage.label}</h3>
+                <Badge variant="secondary" className={`text-xs ${stage.id === "fornecedor" ? "bg-orange-200 text-orange-800" : ""}`}>{stageLeads.length}</Badge>
               </div>
-              <div className="flex-1 space-y-2 p-2 rounded-xl bg-secondary/40 min-h-[200px]">
+              <div className={`flex-1 space-y-2 p-2 rounded-xl min-h-[200px] ${stage.id === "fornecedor" ? "bg-orange-50 border border-orange-200" : "bg-secondary/40"}`}>
                 {stageLeads.map(lead => (
                   <LeadCard key={lead.id} lead={lead} onDragStart={handleDragStart} onSelect={setSelectedLead} />
                 ))}
