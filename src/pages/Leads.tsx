@@ -1,5 +1,6 @@
 import { CRMLayout } from "@/components/CRMLayout";
 import { useLeads } from "@/contexts/LeadsContext";
+import type { PipelineStage } from "@/lib/constants";
 import { PIPELINE_STAGES, LEAD_SOURCES, SOURCE_COLORS } from "@/lib/constants";
 import { formatPhone, formatDate, openWhatsApp } from "@/lib/whatsapp";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MessageCircle, Search, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { toast } from "sonner";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,7 +17,7 @@ type SortField = "name" | "procedure" | "created_at" | "source" | "stage";
 type SortDir = "asc" | "desc";
 
 export default function Leads() {
-  const { leads } = useLeads();
+  const { leads, moveLead } = useLeads();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
@@ -130,7 +132,27 @@ export default function Leads() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="text-[10px]">{stage?.label}</Badge>
+                      <Select 
+                        value={lead.stage} 
+                        onValueChange={(val) => { 
+                          moveLead(lead.id, val as PipelineStage); 
+                          toast.success(`${lead.name} movido para ${PIPELINE_STAGES.find(s => s.id === val)?.label}`);
+                        }}
+                      >
+                        <SelectTrigger 
+                          className={`h-7 text-[11px] font-medium w-[170px] ${stage?.color || ""}`} 
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PIPELINE_STAGES.map(s => (
+                            <SelectItem key={s.id} value={s.id}>
+                              <span className={`text-xs font-medium ${s.color}`}>{s.label}</span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">{lead.procedure}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{formatDate(lead.created_at)}</TableCell>

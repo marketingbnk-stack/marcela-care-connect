@@ -62,6 +62,9 @@ function LeadCard({ lead, onDragStart }: { lead: Lead; onDragStart: (id: string)
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm text-foreground truncate">{lead.name}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{lead.procedure}</p>
+          <Badge className={`text-[10px] mt-1 ${PIPELINE_STAGES.find(s => s.id === lead.stage)?.color || ""}`}>
+            {PIPELINE_STAGES.find(s => s.id === lead.stage)?.label}
+          </Badge>
         </div>
         <GripVertical className="h-4 w-4 text-muted-foreground/50 shrink-0 mt-0.5" />
       </div>
