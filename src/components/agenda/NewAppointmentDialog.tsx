@@ -41,12 +41,29 @@ export function NewAppointmentDialog({ open, onOpenChange }: Props) {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!leadId || !procedure || !date || !time) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
+
+    // Check for duplicate appointment on same day
+    const dayStart = `${date}T00:00:00`;
+    const dayEnd = `${date}T23:59:59`;
+    const { data: existing } = await supabase
+      .from("appointments")
+      .select("id, procedure_name, scheduled_at")
+      .eq("lead_id", leadId)
+      .neq("status", "cancelado")
+      .gte("scheduled_at", dayStart)
+      .lte("scheduled_at", dayEnd);
+
+    if (existing && existing.length > 0) {
+      toast.error(`Este paciente já possui agendamento nesta data. Escolha outra data ou cancele o existente.`);
+      return;
+    }
+
     const scheduledAt = new Date(`${date}T${time}`).toISOString();
     createMutation.mutate(
       { lead_id: leadId, procedure_name: procedure, scheduled_at: scheduledAt, notes: notes || undefined },

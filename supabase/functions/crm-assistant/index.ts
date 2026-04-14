@@ -71,6 +71,7 @@ pendente, confirmado, cancelado, realizado
 - Ao mover lead para "consulta_agendada", deve existir um agendamento de CONSULTA DE AVALIAÇÃO com data/hora.
 - Ao mover para "cirurgia_agendada", deve existir um agendamento de PROCEDIMENTO/CIRURGIA com data/hora.
 - Notas usam o campo "author" para identificar quem escreveu. Use "Assistente IA" quando você criar notas.
+- NUNCA permita dois agendamentos (não cancelados) para o mesmo paciente no mesmo dia. Se houver conflito, informe o agendamento existente e peça para escolher outra data.
 - Ao criar agendamento, o campo scheduled_at é timestamp com timezone (ISO 8601).
 - No campo notes do agendamento, identifique o tipo: "Consulta de Avaliação" ou "Procedimento/Cirurgia".
 - Ao atualizar lead, pode alterar: name, phone, email, age, city, source, procedure, stage.
