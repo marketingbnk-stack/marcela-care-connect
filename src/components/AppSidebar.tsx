@@ -80,6 +80,14 @@ export function AppSidebar() {
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton className="h-11 cursor-pointer" onClick={handleLogout}>
+              <div className="flex items-center gap-3 px-4 text-sidebar-foreground/70 hover:text-destructive transition-colors">
+                <LogOut className="h-5 w-5 shrink-0" />
+                {!collapsed && <span>Sair</span>}
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </div>
     </Sidebar>
