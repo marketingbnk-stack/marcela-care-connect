@@ -179,7 +179,14 @@ export function AdminLeads() {
                 <Label>Etapa</Label>
                 <Select value={form.stage} onValueChange={v => setForm(p => ({ ...p, stage: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{STAGES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
+                  <SelectContent>
+                    <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground">Funil de Leads</div>
+                    {PIPE1_STAGES.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
+                    <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground mt-1">Funil de Vendas</div>
+                    {PIPE2_STAGES.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
+                    <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground mt-1">Outros</div>
+                    {SPECIAL_STAGES.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
+                  </SelectContent>
                 </Select>
               </div>
             </div>
