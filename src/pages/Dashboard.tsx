@@ -1,7 +1,7 @@
 import { CRMLayout } from "@/components/CRMLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLeads } from "@/contexts/LeadsContext";
-import { PIPELINE_STAGES, SOURCE_COLORS } from "@/lib/constants";
+import { PIPELINE_STAGES, PIPE1_STAGES, PIPE2_STAGES, SOURCE_COLORS } from "@/lib/constants";
 import { timeAgo, formatPhone, openWhatsApp } from "@/lib/whatsapp";
 import { Users, UserPlus, Calendar, TrendingUp, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,48 @@ import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 const CHART_COLORS = ["#FF6D6A", "#00205B", "#334D7C", "#7F8FAC", "#E6E9EF", "#FFB5B4", "#FF8A88"];
+
+const FUNNEL_COLORS_LEADS = ["#00205B", "#334D7C", "#5A7AB5", "#7F8FAC"];
+const FUNNEL_COLORS_VENDAS = ["#FF6D6A", "#E85550", "#D04440", "#B83535", "#8B2828", "#6B1F1F"];
+
+function FunnelChart({ title, stages, colors, leads }: {
+  title: string;
+  stages: readonly { id: string; label: string; color: string }[];
+  colors: string[];
+  leads: any[];
+}) {
+  const maxCount = Math.max(...stages.map(s => leads.filter(l => l.stage === s.id).length), 1);
+
+  return (
+    <div className="flex-1">
+      <h3 className="text-sm font-semibold text-foreground mb-4 text-center">{title}</h3>
+      <div className="flex flex-col items-center gap-1">
+        {stages.map((stage, i) => {
+          const count = leads.filter(l => l.stage === stage.id).length;
+          const widthPercent = Math.max(((stages.length - i) / stages.length) * 100, 30);
+
+          return (
+            <div key={stage.id} className="w-full flex flex-col items-center">
+              <div
+                className="relative flex items-center justify-center py-3 rounded-md transition-all hover:opacity-90 cursor-default"
+                style={{
+                  width: `${widthPercent}%`,
+                  backgroundColor: colors[i % colors.length],
+                  minHeight: "44px",
+                }}
+              >
+                <div className="flex items-center gap-2 px-3">
+                  <span className="text-white font-bold text-lg">{count}</span>
+                  <span className="text-white/90 text-xs font-medium truncate">{stage.label}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const { leads } = useLeads();
@@ -53,6 +95,19 @@ export default function Dashboard() {
             </Card>
           ))}
         </div>
+
+        {/* Funnel Charts */}
+        <Card className="border-none shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Resumo do Pipeline</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col lg:flex-row gap-8">
+              <FunnelChart title="🎯 Funil de Leads" stages={PIPE1_STAGES} colors={FUNNEL_COLORS_LEADS} leads={leads} />
+              <FunnelChart title="💼 Funil de Fechamento" stages={PIPE2_STAGES} colors={FUNNEL_COLORS_VENDAS} leads={leads} />
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Chart */}
@@ -109,26 +164,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Pipeline Summary */}
-        <Card className="border-none shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Resumo do Pipeline</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {PIPELINE_STAGES.map(stage => {
-                const count = leads.filter(l => l.stage === stage.id).length;
-                return (
-                  <div key={stage.id} className="text-center p-4 rounded-xl bg-secondary/50">
-                    <p className="text-2xl font-bold text-foreground">{count}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{stage.label}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </CRMLayout>
   );
