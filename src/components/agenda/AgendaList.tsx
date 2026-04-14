@@ -126,7 +126,7 @@ export function AgendaList() {
               </TableRow>
             ))}
             {appointments.length === 0 && (
-              <TableRow><TableCell colSpan={7} className="text-center py-10 text-muted-foreground">Nenhum agendamento encontrado.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={8} className="text-center py-10 text-muted-foreground">Nenhum agendamento encontrado.</TableCell></TableRow>
             )}
           </TableBody>
         </Table>
