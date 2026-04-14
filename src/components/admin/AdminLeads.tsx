@@ -13,14 +13,6 @@ import { Pencil, Trash2, Plus } from "lucide-react";
 import { formatDate } from "@/lib/whatsapp";
 import { PIPELINE_STAGES, PIPE1_STAGES, PIPE2_STAGES, SPECIAL_STAGES } from "@/lib/constants";
 
-const STAGES = [
-  { value: "novo_lead", label: "Novo Lead" },
-  { value: "contato_feito", label: "Contato Feito" },
-  { value: "consulta_agendada", label: "Consulta Agendada" },
-  { value: "consulta_realizada", label: "Consulta Realizada" },
-  { value: "procedimento_agendado", label: "Procedimento Agendado" },
-  { value: "realizado", label: "Realizado" },
-] as const;
 
 type LeadForm = {
   name: string; phone: string; email: string; age: string; city: string;
