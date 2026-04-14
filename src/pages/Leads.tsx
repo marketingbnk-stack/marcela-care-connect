@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LeadDetailDialog } from "@/components/LeadDetailDialog";
+import { ScheduleConsultaDialog } from "@/components/ScheduleConsultaDialog";
 import { MessageCircle, Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
@@ -25,6 +26,16 @@ export default function Leads() {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [scheduleDialog, setScheduleDialog] = useState<{ lead: Lead } | null>(null);
+
+  const handleStageChange = (lead: Lead, newStage: PipelineStage) => {
+    if (newStage === "consulta_agendada" && lead.stage !== "consulta_agendada") {
+      setScheduleDialog({ lead });
+      return;
+    }
+    moveLead(lead.id, newStage);
+    toast.success(`${lead.name} movido para ${PIPELINE_STAGES.find(s => s.id === newStage)?.label}`);
+  };
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -135,10 +146,7 @@ export default function Leads() {
                     <TableCell>
                       <Select 
                         value={lead.stage} 
-                        onValueChange={(val) => { 
-                          moveLead(lead.id, val as PipelineStage); 
-                          toast.success(`${lead.name} movido para ${PIPELINE_STAGES.find(s => s.id === val)?.label}`);
-                        }}
+                        onValueChange={(val) => handleStageChange(lead, val as PipelineStage)}
                       >
                         <SelectTrigger 
                           className={`h-7 text-[11px] font-medium w-[170px] ${stage?.color || ""}`} 
@@ -183,6 +191,20 @@ export default function Leads() {
         </div>
       </div>
       <LeadDetailDialog lead={selectedLead} open={!!selectedLead} onOpenChange={open => { if (!open) setSelectedLead(null); }} />
+      {scheduleDialog && (
+        <ScheduleConsultaDialog
+          open={true}
+          onOpenChange={(open) => { if (!open) setScheduleDialog(null); }}
+          leadId={scheduleDialog.lead.id}
+          leadName={scheduleDialog.lead.name}
+          procedure={scheduleDialog.lead.procedure}
+          onConfirm={() => {
+            moveLead(scheduleDialog.lead.id, "consulta_agendada" as PipelineStage);
+            toast.success(`${scheduleDialog.lead.name} movido para Consulta Agendada com agendamento!`);
+            setScheduleDialog(null);
+          }}
+        />
+      )}
     </CRMLayout>
   );
 }
