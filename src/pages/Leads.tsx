@@ -26,6 +26,16 @@ export default function Leads() {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [scheduleDialog, setScheduleDialog] = useState<{ lead: Lead } | null>(null);
+
+  const handleStageChange = (lead: Lead, newStage: PipelineStage) => {
+    if (newStage === "consulta_agendada" && lead.stage !== "consulta_agendada") {
+      setScheduleDialog({ lead });
+      return;
+    }
+    moveLead(lead.id, newStage);
+    toast.success(`${lead.name} movido para ${PIPELINE_STAGES.find(s => s.id === newStage)?.label}`);
+  };
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
