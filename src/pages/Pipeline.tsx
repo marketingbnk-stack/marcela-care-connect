@@ -7,14 +7,15 @@ import { openWhatsApp, timeAgo } from "@/lib/whatsapp";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageCircle, GripVertical, Eye } from "lucide-react";
+import { LeadDetailDialog } from "@/components/LeadDetailDialog";
+import { MessageCircle, GripVertical } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function Pipeline() {
   const { leads, moveLead } = useLeads();
   const [draggedLead, setDraggedLead] = useState<string | null>(null);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const handleDragStart = (leadId: string) => setDraggedLead(leadId);
 
@@ -43,13 +44,14 @@ export default function Pipeline() {
               </div>
               <div className="flex-1 space-y-2 p-2 rounded-xl bg-secondary/40 min-h-[200px]">
                 {stageLeads.map(lead => (
-                  <LeadCard key={lead.id} lead={lead} onDragStart={handleDragStart} />
+                  <LeadCard key={lead.id} lead={lead} onDragStart={handleDragStart} onSelect={setSelectedLead} />
                 ))}
               </div>
             </div>
           );
         })}
       </div>
+      <LeadDetailDialog lead={selectedLead} open={!!selectedLead} onOpenChange={open => { if (!open) setSelectedLead(null); }} />
     </CRMLayout>
   );
 }
