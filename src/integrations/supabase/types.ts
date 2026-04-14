@@ -409,6 +409,12 @@ export type Database = {
         | "procedimento_agendado"
         | "realizado"
         | "fornecedor"
+        | "plano_apresentado"
+        | "aguardando_decisao"
+        | "procedimento_fechado"
+        | "cirurgia_agendada"
+        | "cirurgia_realizada"
+        | "pos_procedimento"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -545,6 +551,12 @@ export const Constants = {
         "procedimento_agendado",
         "realizado",
         "fornecedor",
+        "plano_apresentado",
+        "aguardando_decisao",
+        "procedimento_fechado",
+        "cirurgia_agendada",
+        "cirurgia_realizada",
+        "pos_procedimento",
       ],
     },
   },
