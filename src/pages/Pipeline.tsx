@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LeadDetailDialog } from "@/components/LeadDetailDialog";
+import { ScheduleConsultaDialog } from "@/components/ScheduleConsultaDialog";
 import { MessageCircle, GripVertical } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -17,10 +18,30 @@ export default function Pipeline() {
   const { leads, moveLead } = useLeads();
   const [draggedLead, setDraggedLead] = useState<string | null>(null);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [scheduleDialog, setScheduleDialog] = useState<{ lead: Lead } | null>(null);
 
   const handleDragStart = (leadId: string) => setDraggedLead(leadId);
   const handleDrop = (stage: PipelineStage) => {
-    if (draggedLead) { moveLead(draggedLead, stage); setDraggedLead(null); }
+    if (!draggedLead) return;
+    if (stage === "consulta_agendada") {
+      const lead = leads.find(l => l.id === draggedLead);
+      if (lead && lead.stage !== "consulta_agendada") {
+        setScheduleDialog({ lead });
+        setDraggedLead(null);
+        return;
+      }
+    }
+    moveLead(draggedLead, stage);
+    setDraggedLead(null);
+  };
+
+  const handleStageChange = (lead: Lead, newStage: PipelineStage) => {
+    if (newStage === "consulta_agendada" && lead.stage !== "consulta_agendada") {
+      setScheduleDialog({ lead });
+      return;
+    }
+    moveLead(lead.id, newStage);
+    toast.success(`${lead.name} movido para ${PIPELINE_STAGES.find(s => s.id === newStage)?.label}`);
   };
 
   const renderColumns = (stages: readonly { id: string; label: string; color: string }[], isSpecial = false) => (
@@ -37,7 +58,7 @@ export default function Pipeline() {
             </div>
             <div className={`flex-1 space-y-2 p-2 rounded-xl min-h-[200px] ${isFornecedor ? "bg-orange-50 border border-orange-200" : "bg-secondary/40"}`}>
               {stageLeads.map(lead => (
-                <LeadCard key={lead.id} lead={lead} onDragStart={handleDragStart} onSelect={setSelectedLead} />
+                <LeadCard key={lead.id} lead={lead} onDragStart={handleDragStart} onSelect={setSelectedLead} onStageChange={handleStageChange} />
               ))}
             </div>
           </div>
@@ -48,7 +69,7 @@ export default function Pipeline() {
 
   return (
     <CRMLayout title="Pipeline">
-      <Tabs defaultValue="leads" className="space-y-4">
+      <Tabs defaultValue="todos" className="space-y-4">
         <TabsList className="bg-card border">
           <TabsTrigger value="todos">📋 Todos</TabsTrigger>
           <TabsTrigger value="leads">🎯 Funil de Leads</TabsTrigger>
@@ -61,12 +82,30 @@ export default function Pipeline() {
         <TabsContent value="fornecedor">{renderColumns(SPECIAL_STAGES, true)}</TabsContent>
       </Tabs>
       <LeadDetailDialog lead={selectedLead} open={!!selectedLead} onOpenChange={open => { if (!open) setSelectedLead(null); }} />
+      {scheduleDialog && (
+        <ScheduleConsultaDialog
+          open={true}
+          onOpenChange={(open) => { if (!open) setScheduleDialog(null); }}
+          leadId={scheduleDialog.lead.id}
+          leadName={scheduleDialog.lead.name}
+          procedure={scheduleDialog.lead.procedure}
+          onConfirm={() => {
+            moveLead(scheduleDialog.lead.id, "consulta_agendada");
+            toast.success(`${scheduleDialog.lead.name} movido para Consulta Agendada com agendamento!`);
+            setScheduleDialog(null);
+          }}
+        />
+      )}
     </CRMLayout>
   );
 }
 
-function LeadCard({ lead, onDragStart, onSelect }: { lead: Lead; onDragStart: (id: string) => void; onSelect: (lead: Lead) => void }) {
-  const { moveLead } = useLeads();
+function LeadCard({ lead, onDragStart, onSelect, onStageChange }: { 
+  lead: Lead; 
+  onDragStart: (id: string) => void; 
+  onSelect: (lead: Lead) => void;
+  onStageChange: (lead: Lead, stage: PipelineStage) => void;
+}) {
   const currentStage = PIPELINE_STAGES.find(s => s.id === lead.stage);
 
   return (
@@ -80,10 +119,7 @@ function LeadCard({ lead, onDragStart, onSelect }: { lead: Lead; onDragStart: (i
         <GripVertical className="h-4 w-4 text-muted-foreground/50 shrink-0 mt-0.5" />
       </div>
       <div className="mt-2">
-        <Select value={lead.stage} onValueChange={(val) => {
-          moveLead(lead.id, val as PipelineStage);
-          toast.success(`${lead.name} movido para ${PIPELINE_STAGES.find(s => s.id === val)?.label}`);
-        }}>
+        <Select value={lead.stage} onValueChange={(val) => onStageChange(lead, val as PipelineStage)}>
           <SelectTrigger className={`h-6 text-[10px] font-medium w-full ${currentStage?.color || ""}`}
             onClick={e => e.stopPropagation()} onPointerDown={e => e.stopPropagation()}>
             <SelectValue />
