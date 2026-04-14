@@ -135,9 +135,9 @@ function LeadCard({ lead, onDragStart, onSelect, onStageChange }: {
         </Select>
       </div>
       {lead.next_step && (
-        <div className="mt-2 flex items-start gap-1.5 text-[10px] text-accent">
-          <span className="shrink-0">▶</span>
-          <span className="truncate">{lead.next_step}</span>
+        <div className="mt-2 px-2 py-1.5 rounded-md bg-accent/10 border border-accent/20">
+          <p className="text-[10px] font-semibold text-accent mb-0.5">Próxima etapa:</p>
+          <p className="text-[11px] text-foreground leading-tight">{lead.next_step}</p>
         </div>
       )}
       <div className="flex items-center justify-between mt-2">
