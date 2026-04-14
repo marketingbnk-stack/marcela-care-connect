@@ -83,7 +83,8 @@ serve(async (req) => {
       });
     }
 
-    if (!["administrativo", "comercial"].includes(role)) {
+    const validRoles = isBootstrap ? ["mestre", "administrativo", "comercial"] : ["administrativo", "comercial"];
+    if (!validRoles.includes(role)) {
       return new Response(JSON.stringify({ error: "Papel inválido" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
