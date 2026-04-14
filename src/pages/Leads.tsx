@@ -8,22 +8,23 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageCircle, Search, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { LeadDetailDialog } from "@/components/LeadDetailDialog";
+import { MessageCircle, Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import type { Lead } from "@/lib/types";
 
 type SortField = "name" | "procedure" | "created_at" | "source" | "stage";
 type SortDir = "asc" | "desc";
 
 export default function Leads() {
   const { leads, moveLead } = useLeads();
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -123,7 +124,7 @@ export default function Leads() {
               {filtered.map(lead => {
                 const stage = PIPELINE_STAGES.find(s => s.id === lead.stage);
                 return (
-                  <TableRow key={lead.id} className="hover:bg-secondary/30 cursor-pointer" onClick={() => navigate(`/leads/${lead.id}`)}>
+                   <TableRow key={lead.id} className="hover:bg-secondary/30 cursor-pointer" onClick={() => setSelectedLead(lead)}>
                     <TableCell className="font-medium">{lead.name}</TableCell>
                     <TableCell className="text-muted-foreground">{formatPhone(lead.phone)}</TableCell>
                     <TableCell>
@@ -158,22 +159,13 @@ export default function Leads() {
                     <TableCell className="text-muted-foreground text-sm">{lead.procedure}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{formatDate(lead.created_at)}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          size="icon" variant="ghost"
-                          className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                          onClick={e => { e.stopPropagation(); openWhatsApp(lead.phone, `Olá ${lead.name}!`); }}
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon" variant="ghost"
-                          className="h-8 w-8"
-                          onClick={e => { e.stopPropagation(); navigate(`/leads/${lead.id}`); }}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <Button
+                        size="icon" variant="ghost"
+                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={e => { e.stopPropagation(); openWhatsApp(lead.phone, `Olá ${lead.name}!`); }}
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );
@@ -189,6 +181,7 @@ export default function Leads() {
           </Table>
         </div>
       </div>
+      <LeadDetailDialog lead={selectedLead} open={!!selectedLead} onOpenChange={open => { if (!open) setSelectedLead(null); }} />
     </CRMLayout>
   );
 }
