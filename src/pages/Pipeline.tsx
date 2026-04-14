@@ -50,10 +50,12 @@ export default function Pipeline() {
     <CRMLayout title="Pipeline">
       <Tabs defaultValue="leads" className="space-y-4">
         <TabsList className="bg-card border">
+          <TabsTrigger value="todos">📋 Todos</TabsTrigger>
           <TabsTrigger value="leads">🎯 Funil de Leads</TabsTrigger>
           <TabsTrigger value="vendas">💼 Funil de Vendas</TabsTrigger>
           <TabsTrigger value="fornecedor">📦 Fornecedores</TabsTrigger>
         </TabsList>
+        <TabsContent value="todos">{renderColumns(PIPELINE_STAGES)}</TabsContent>
         <TabsContent value="leads">{renderColumns(PIPE1_STAGES)}</TabsContent>
         <TabsContent value="vendas">{renderColumns(PIPE2_STAGES)}</TabsContent>
         <TabsContent value="fornecedor">{renderColumns(SPECIAL_STAGES, true)}</TabsContent>
