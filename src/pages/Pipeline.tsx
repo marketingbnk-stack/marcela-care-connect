@@ -55,6 +55,10 @@ export default function Pipeline() {
 }
 
 function LeadCard({ lead, onDragStart }: { lead: Lead; onDragStart: (id: string) => void }) {
+  const navigate = useNavigate();
+  const { moveLead } = useLeads();
+  const currentStage = PIPELINE_STAGES.find(s => s.id === lead.stage);
+
   return (
     <div
       draggable
@@ -65,11 +69,32 @@ function LeadCard({ lead, onDragStart }: { lead: Lead; onDragStart: (id: string)
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm text-foreground truncate">{lead.name}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{lead.procedure}</p>
-          <Badge className={`text-[10px] mt-1 ${PIPELINE_STAGES.find(s => s.id === lead.stage)?.color || ""}`}>
-            {PIPELINE_STAGES.find(s => s.id === lead.stage)?.label}
-          </Badge>
         </div>
         <GripVertical className="h-4 w-4 text-muted-foreground/50 shrink-0 mt-0.5" />
+      </div>
+      <div className="mt-2">
+        <Select
+          value={lead.stage}
+          onValueChange={(val) => {
+            moveLead(lead.id, val as PipelineStage);
+            toast.success(`${lead.name} movido para ${PIPELINE_STAGES.find(s => s.id === val)?.label}`);
+          }}
+        >
+          <SelectTrigger
+            className={`h-6 text-[10px] font-medium w-full ${currentStage?.color || ""}`}
+            onClick={e => e.stopPropagation()}
+            onPointerDown={e => e.stopPropagation()}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PIPELINE_STAGES.map(s => (
+              <SelectItem key={s.id} value={s.id}>
+                <span className={`text-xs font-medium ${s.color}`}>{s.label}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex items-center justify-between mt-3">
         <Badge variant="outline" className={`text-[10px] ${SOURCE_COLORS[lead.source] || ""}`}>
@@ -77,6 +102,14 @@ function LeadCard({ lead, onDragStart }: { lead: Lead; onDragStart: (id: string)
         </Badge>
         <div className="flex items-center gap-1">
           <span className="text-[10px] text-muted-foreground">{timeAgo(lead.created_at)}</span>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-7 w-7"
+            onClick={e => { e.stopPropagation(); navigate(`/leads/${lead.id}`); }}
+          >
+            <Eye className="h-3.5 w-3.5" />
+          </Button>
           <Button
             size="icon"
             variant="ghost"
