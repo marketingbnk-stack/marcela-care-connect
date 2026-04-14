@@ -128,6 +128,11 @@ export function LeadDetailDialog({ lead, open, onOpenChange }: LeadDetailDialogP
 
           <Separator />
 
+          {/* Agendamentos */}
+          <LeadAppointments leadId={lead.id} />
+
+          <Separator />
+
           {/* Anexos */}
           <LeadAttachments leadId={lead.id} />
 
