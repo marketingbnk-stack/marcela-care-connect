@@ -1,6 +1,7 @@
 import { LayoutDashboard, Kanban, Users, BarChart3, Settings, CalendarDays } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import logoImg from "@/assets/logo-branco.png";
+import logoIcon from "@/assets/logo-icon-white.png";
 import {
   Sidebar,
   SidebarContent,
@@ -28,7 +29,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r-0">
       <div className="flex items-center justify-center py-6 px-4">
         <img
-          src={logoImg}
+          src={collapsed ? logoIcon : logoImg}
           alt="Marcela Cammarota"
           className={collapsed ? "h-8 w-auto" : "h-12 w-auto"}
         />
