@@ -11,15 +11,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { formatDate } from "@/lib/whatsapp";
+import { PIPELINE_STAGES, PIPE1_STAGES, PIPE2_STAGES, SPECIAL_STAGES } from "@/lib/constants";
 
-const STAGES = [
-  { value: "novo_lead", label: "Novo Lead" },
-  { value: "contato_feito", label: "Contato Feito" },
-  { value: "consulta_agendada", label: "Consulta Agendada" },
-  { value: "consulta_realizada", label: "Consulta Realizada" },
-  { value: "procedimento_agendado", label: "Procedimento Agendado" },
-  { value: "realizado", label: "Realizado" },
-] as const;
 
 type LeadForm = {
   name: string; phone: string; email: string; age: string; city: string;
@@ -131,7 +124,7 @@ export function AdminLeads() {
                     <TableCell>{lead.phone}</TableCell>
                     <TableCell>{lead.source}</TableCell>
                     <TableCell>{lead.procedure}</TableCell>
-                    <TableCell>{STAGES.find(s => s.value === lead.stage)?.label}</TableCell>
+                    <TableCell>{PIPELINE_STAGES.find(s => s.id === lead.stage)?.label || lead.stage}</TableCell>
                     <TableCell>{formatDate(lead.created_at)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
@@ -186,7 +179,14 @@ export function AdminLeads() {
                 <Label>Etapa</Label>
                 <Select value={form.stage} onValueChange={v => setForm(p => ({ ...p, stage: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{STAGES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
+                  <SelectContent>
+                    <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground">Funil de Leads</div>
+                    {PIPE1_STAGES.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
+                    <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground mt-1">Funil de Vendas</div>
+                    {PIPE2_STAGES.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
+                    <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground mt-1">Outros</div>
+                    {SPECIAL_STAGES.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
+                  </SelectContent>
                 </Select>
               </div>
             </div>
