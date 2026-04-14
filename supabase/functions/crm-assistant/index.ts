@@ -175,7 +175,7 @@ async function executeTool(name: string, args: Record<string, unknown>, supabase
         email: args.email || null,
         city: args.city || null,
         age: args.age || null,
-      }).select().single();
+      }).select().maybeSingle();
       if (error) return { error: error.message };
       return { success: true, lead: data };
     }
@@ -192,7 +192,7 @@ async function executeTool(name: string, args: Record<string, unknown>, supabase
         email: args.email || null,
         company: args.company || null,
         notes: args.notes || null,
-      }).select().single();
+      }).select().maybeSingle();
       if (error) return { error: error.message };
       return { success: true, fornecedor: data };
     }
@@ -206,7 +206,7 @@ async function executeTool(name: string, args: Record<string, unknown>, supabase
       return { total: data?.length || 0, by_stage: summary };
     }
     case "update_lead_stage": {
-      const { data, error } = await supabase.from("leads").update({ stage: args.new_stage }).eq("id", args.lead_id).select().single();
+      const { data, error } = await supabase.from("leads").update({ stage: args.new_stage }).eq("id", args.lead_id).select().maybeSingle();
       if (error) return { error: error.message };
       return { success: true, lead: data };
     }
