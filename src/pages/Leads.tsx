@@ -181,6 +181,7 @@ export default function Leads() {
           </Table>
         </div>
       </div>
+      <LeadDetailDialog lead={selectedLead} open={!!selectedLead} onOpenChange={open => { if (!open) setSelectedLead(null); }} />
     </CRMLayout>
   );
 }
