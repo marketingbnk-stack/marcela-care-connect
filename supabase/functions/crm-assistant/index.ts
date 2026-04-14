@@ -7,8 +7,23 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `Você é o assistente de IA do CRM da Dra. Marcela Cammarota, cirurgiã plástica.
+function getSystemPrompt() {
+  const now = new Date();
+  const spFormatter = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+    weekday: "long",
+  });
+  const nowSP = spFormatter.format(now);
+
+  return `Você é o assistente de IA do CRM da Dra. Marcela Cammarota, cirurgiã plástica.
 Você tem acesso TOTAL a todas as tabelas e fluxos do CRM. Pode fazer tudo que um humano faria no sistema.
+
+## DATA E HORA ATUAL
+Agora são: ${nowSP} (fuso horário de São Paulo, UTC-3).
+Use essa referência para "hoje", "amanhã", "próxima semana", etc.
+Ao criar agendamentos, sempre use o fuso de São Paulo (UTC-3) para converter datas.
 
 ## TABELAS DO CRM
 1. **leads** — Pacientes/contatos do CRM
