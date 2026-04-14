@@ -7,9 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageCircle, Search, Eye } from "lucide-react";
-import { useState } from "react";
+import { MessageCircle, Search, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+
+type SortField = "name" | "procedure" | "created_at";
+type SortDir = "asc" | "desc";
 
 export default function Leads() {
   const { leads } = useLeads();
@@ -17,13 +20,43 @@ export default function Leads() {
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-  const filtered = leads.filter(l => {
-    const matchSearch = l.name.toLowerCase().includes(search.toLowerCase()) || l.phone.includes(search);
-    const matchSource = sourceFilter === "all" || l.source === sourceFilter;
-    const matchStage = stageFilter === "all" || l.stage === stageFilter;
-    return matchSearch && matchSource && matchStage;
-  });
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />;
+    return sortDir === "asc"
+      ? <ArrowUp className="h-3 w-3 ml-1" />
+      : <ArrowDown className="h-3 w-3 ml-1" />;
+  };
+
+  const filtered = useMemo(() => {
+    let result = leads.filter(l => {
+      const matchSearch = l.name.toLowerCase().includes(search.toLowerCase()) || l.phone.includes(search);
+      const matchSource = sourceFilter === "all" || l.source === sourceFilter;
+      const matchStage = stageFilter === "all" || l.stage === stageFilter;
+      return matchSearch && matchSource && matchStage;
+    });
+    if (sortField) {
+      result = [...result].sort((a, b) => {
+        let cmp = 0;
+        if (sortField === "name") cmp = a.name.localeCompare(b.name, "pt-BR");
+        else if (sortField === "procedure") cmp = a.procedure.localeCompare(b.procedure, "pt-BR");
+        else if (sortField === "created_at") cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        return sortDir === "desc" ? -cmp : cmp;
+      });
+    }
+    return result;
+  }, [leads, search, sourceFilter, stageFilter, sortField, sortDir]);
 
   return (
     <CRMLayout title="Leads">
@@ -60,12 +93,18 @@ export default function Leads() {
           <Table>
             <TableHeader>
               <TableRow className="bg-secondary/50">
-                <TableHead>Nome</TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("name")}>
+                  <span className="flex items-center">Nome <SortIcon field="name" /></span>
+                </TableHead>
                 <TableHead>Telefone</TableHead>
                 <TableHead>Origem</TableHead>
                 <TableHead>Etapa</TableHead>
-                <TableHead>Procedimento</TableHead>
-                <TableHead>Data</TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("procedure")}>
+                  <span className="flex items-center">Procedimento <SortIcon field="procedure" /></span>
+                </TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("created_at")}>
+                  <span className="flex items-center">Data <SortIcon field="created_at" /></span>
+                </TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
