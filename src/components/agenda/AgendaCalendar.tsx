@@ -3,9 +3,7 @@ import { useAppointments, useUpdateAppointment, type AppointmentWithLead } from 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
-import { openWhatsApp } from "@/lib/whatsapp";
-import { toast } from "sonner";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -17,7 +15,11 @@ const STATUS_COLORS: Record<string, string> = {
   realizado: "bg-blue-100 text-blue-700",
 };
 
-export function AgendaCalendar() {
+interface Props {
+  onSelectLead?: (leadId: string) => void;
+}
+
+export function AgendaCalendar({ onSelectLead }: Props) {
   const { data: appointments = [], isLoading } = useAppointments();
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -56,21 +58,18 @@ export function AgendaCalendar() {
   return (
     <Card className="border-none shadow-sm">
       <CardContent className="p-4">
-        {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <Button variant="ghost" size="icon" onClick={prevMonth}><ChevronLeft className="h-5 w-5" /></Button>
           <h3 className="text-base font-semibold text-foreground">{MONTHS[month]} {year}</h3>
           <Button variant="ghost" size="icon" onClick={nextMonth}><ChevronRight className="h-5 w-5" /></Button>
         </div>
 
-        {/* Weekday headers */}
         <div className="grid grid-cols-7 gap-1 mb-1">
           {WEEKDAYS.map(d => (
             <div key={d} className="text-center text-xs font-medium text-muted-foreground py-2">{d}</div>
           ))}
         </div>
 
-        {/* Days grid */}
         <div className="grid grid-cols-7 gap-1">
           {calendarDays.map((day, i) => {
             if (day === null) return <div key={`e-${i}`} className="min-h-[80px]" />;
@@ -87,7 +86,8 @@ export function AgendaCalendar() {
                   {dayAppts.slice(0, 3).map(apt => (
                     <div
                       key={apt.id}
-                      className={`truncate rounded px-1 py-0.5 text-[10px] font-medium ${STATUS_COLORS[apt.status] || ""}`}
+                      onClick={() => onSelectLead?.(apt.lead_id)}
+                      className={`truncate rounded px-1 py-0.5 text-[10px] font-medium cursor-pointer hover:opacity-80 ${STATUS_COLORS[apt.status] || ""}`}
                       title={`${new Date(apt.scheduled_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} - ${apt.leads?.name || "Lead"} - ${apt.procedure_name}`}
                     >
                       {new Date(apt.scheduled_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} {apt.leads?.name?.split(" ")[0]}
