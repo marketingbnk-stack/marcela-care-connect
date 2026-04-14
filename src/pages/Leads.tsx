@@ -11,7 +11,7 @@ import { MessageCircle, Search, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "luc
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-type SortField = "name" | "procedure" | "created_at";
+type SortField = "name" | "procedure" | "created_at" | "source" | "stage";
 type SortDir = "asc" | "desc";
 
 export default function Leads() {
