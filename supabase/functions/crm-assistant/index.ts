@@ -215,7 +215,7 @@ async function executeTool(name: string, args: Record<string, unknown>, supabase
         lead_id: args.lead_id,
         content: args.content,
         author: args.author,
-      }).select().single();
+      }).select().maybeSingle();
       if (error) return { error: error.message };
       return { success: true, note: data };
     }
