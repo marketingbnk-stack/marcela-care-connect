@@ -92,12 +92,12 @@ serve(async (req) => {
     }
 
     // Create user with a random password (they'll use magic link)
-    const randomPassword = crypto.randomUUID() + "Aa1!";
+    const userPassword = body.password || (crypto.randomUUID() + "Aa1!");
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
-      password: randomPassword,
+      password: userPassword,
       email_confirm: true,
-      user_metadata: { display_name: email },
+      user_metadata: { display_name: body.display_name || email },
     });
 
     if (createError) {
