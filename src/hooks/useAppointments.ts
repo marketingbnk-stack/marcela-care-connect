@@ -49,8 +49,8 @@ export function useCreateAppointment() {
 export function useUpdateAppointment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: any }) => {
-      const { error } = await supabase.from("appointments").update(updates).eq("id", id);
+    mutationFn: async ({ id, ...updates }: { id: string; status?: string; notes?: string; reminder_48h_sent?: boolean; reminder_24h_sent?: boolean }) => {
+      const { error } = await supabase.from("appointments").update(updates as any).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["appointments"] }),
