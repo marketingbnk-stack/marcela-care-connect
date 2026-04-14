@@ -11,7 +11,7 @@ import { MessageCircle, Search, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "luc
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-type SortField = "name" | "procedure" | "created_at";
+type SortField = "name" | "procedure" | "created_at" | "source" | "stage";
 type SortDir = "asc" | "desc";
 
 export default function Leads() {
@@ -51,6 +51,11 @@ export default function Leads() {
         let cmp = 0;
         if (sortField === "name") cmp = a.name.localeCompare(b.name, "pt-BR");
         else if (sortField === "procedure") cmp = a.procedure.localeCompare(b.procedure, "pt-BR");
+        else if (sortField === "source") cmp = a.source.localeCompare(b.source, "pt-BR");
+        else if (sortField === "stage") {
+          const stageOrder = PIPELINE_STAGES.map(s => s.id);
+          cmp = stageOrder.indexOf(a.stage) - stageOrder.indexOf(b.stage);
+        }
         else if (sortField === "created_at") cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         return sortDir === "desc" ? -cmp : cmp;
       });
@@ -97,8 +102,12 @@ export default function Leads() {
                   <span className="flex items-center">Nome <SortIcon field="name" /></span>
                 </TableHead>
                 <TableHead>Telefone</TableHead>
-                <TableHead>Origem</TableHead>
-                <TableHead>Etapa</TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("source")}>
+                  <span className="flex items-center">Origem <SortIcon field="source" /></span>
+                </TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("stage")}>
+                  <span className="flex items-center">Etapa <SortIcon field="stage" /></span>
+                </TableHead>
                 <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("procedure")}>
                   <span className="flex items-center">Procedimento <SortIcon field="procedure" /></span>
                 </TableHead>
