@@ -6,8 +6,11 @@ import type { Lead } from "@/lib/types";
 import { openWhatsApp, timeAgo } from "@/lib/whatsapp";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, GripVertical } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MessageCircle, GripVertical, Eye } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function Pipeline() {
   const { leads, moveLead } = useLeads();
