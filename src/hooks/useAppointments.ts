@@ -23,6 +23,7 @@ export function useAppointments() {
       const { data, error } = await supabase
         .from("appointments")
         .select("*, leads(name, phone, email)")
+        .eq("status", "confirmado")
         .order("scheduled_at", { ascending: true });
       if (error) throw error;
       return data as AppointmentWithLead[];
