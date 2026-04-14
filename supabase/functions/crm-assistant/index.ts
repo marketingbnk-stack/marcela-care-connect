@@ -159,8 +159,9 @@ async function executeTool(name: string, args: Record<string, unknown>, supabase
       return { leads: data, count: data?.length || 0 };
     }
     case "get_lead_details": {
-      const { data: lead, error: e1 } = await supabase.from("leads").select("*").eq("id", args.lead_id).single();
+      const { data: lead, error: e1 } = await supabase.from("leads").select("*").eq("id", args.lead_id).maybeSingle();
       if (e1) return { error: e1.message };
+      if (!lead) return { error: "Lead não encontrado com esse ID." };
       const { data: notes } = await supabase.from("lead_notes").select("*").eq("lead_id", args.lead_id).order("created_at", { ascending: false });
       const { data: appointments } = await supabase.from("appointments").select("*").eq("lead_id", args.lead_id).order("scheduled_at", { ascending: false });
       return { lead, notes: notes || [], appointments: appointments || [] };
