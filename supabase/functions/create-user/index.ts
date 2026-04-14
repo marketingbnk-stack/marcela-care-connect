@@ -17,39 +17,48 @@ serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
-    // Verify the caller is mestre
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Não autorizado" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    if (authError || !caller) {
-      return new Response(JSON.stringify({ error: "Token inválido" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Check if caller is mestre
-    const { data: callerRole } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", caller.id)
-      .maybeSingle();
-
-    if (!callerRole || callerRole.role !== "mestre") {
-      return new Response(JSON.stringify({ error: "Apenas o usuário Mestre pode gerenciar usuários" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const body = await req.json();
+
+    // Bootstrap: if no roles exist yet, allow creating the first mestre without auth
+    const { count: roleCount } = await supabaseAdmin
+      .from("user_roles")
+      .select("*", { count: "exact", head: true });
+
+    const isBootstrap = (roleCount === 0 || roleCount === null) && body.role === "mestre" && body.action === "bootstrap";
+
+    if (!isBootstrap) {
+      // Verify the caller is mestre
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) {
+        return new Response(JSON.stringify({ error: "Não autorizado" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const token = authHeader.replace("Bearer ", "");
+      const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token);
+      if (authError || !caller) {
+        return new Response(JSON.stringify({ error: "Token inválido" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Check if caller is mestre
+      const { data: callerRole } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", caller.id)
+        .maybeSingle();
+
+      if (!callerRole || callerRole.role !== "mestre") {
+        return new Response(JSON.stringify({ error: "Apenas o usuário Mestre pode gerenciar usuários" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
 
     // DELETE action
     if (body.action === "delete" && body.user_id) {
@@ -74,7 +83,8 @@ serve(async (req) => {
       });
     }
 
-    if (!["administrativo", "comercial"].includes(role)) {
+    const validRoles = isBootstrap ? ["mestre", "administrativo", "comercial"] : ["administrativo", "comercial"];
+    if (!validRoles.includes(role)) {
       return new Response(JSON.stringify({ error: "Papel inválido" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -82,12 +92,12 @@ serve(async (req) => {
     }
 
     // Create user with a random password (they'll use magic link)
-    const randomPassword = crypto.randomUUID() + "Aa1!";
+    const userPassword = body.password || (crypto.randomUUID() + "Aa1!");
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
-      password: randomPassword,
+      password: userPassword,
       email_confirm: true,
-      user_metadata: { display_name: email },
+      user_metadata: { display_name: body.display_name || email },
     });
 
     if (createError) {
