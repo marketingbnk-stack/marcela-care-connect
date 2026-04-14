@@ -7,12 +7,17 @@ import { AdminNotes } from "@/components/admin/AdminNotes";
 import { AdminAgents } from "@/components/admin/AdminAgents";
 import { AdminAvailability } from "@/components/admin/AdminAvailability";
 import { AdminFornecedores } from "@/components/admin/AdminFornecedores";
+import { AdminUsers } from "@/components/admin/AdminUsers";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Admin() {
+  const { isMestre } = useUserRole();
+
   return (
     <CRMLayout title="Painel Administrativo">
-      <Tabs defaultValue="leads" className="space-y-4">
+      <Tabs defaultValue={isMestre ? "users" : "leads"} className="space-y-4">
         <TabsList className="bg-card border flex-wrap h-auto">
+          {isMestre && <TabsTrigger value="users">Usuários</TabsTrigger>}
           <TabsTrigger value="leads">Leads</TabsTrigger>
           <TabsTrigger value="fornecedores">Fornecedores</TabsTrigger>
           <TabsTrigger value="sources">Origens</TabsTrigger>
@@ -21,6 +26,7 @@ export default function Admin() {
           <TabsTrigger value="availability">Disponibilidade</TabsTrigger>
           <TabsTrigger value="agents">Agentes IA</TabsTrigger>
         </TabsList>
+        {isMestre && <TabsContent value="users"><AdminUsers /></TabsContent>}
         <TabsContent value="leads"><AdminLeads /></TabsContent>
         <TabsContent value="fornecedores"><AdminFornecedores /></TabsContent>
         <TabsContent value="sources"><AdminSources /></TabsContent>
