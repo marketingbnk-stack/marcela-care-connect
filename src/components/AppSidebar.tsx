@@ -1,6 +1,7 @@
 import { LayoutDashboard, Kanban, Users, BarChart3, Settings, CalendarDays } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import logoImg from "@/assets/logo-branco.png";
+import logoIcon from "@/assets/logo-icon-white.png";
 import {
   Sidebar,
   SidebarContent,
