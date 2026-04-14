@@ -66,8 +66,8 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4">
       <Card className="w-full max-w-md shadow-xl border-primary/10 min-h-[500px] flex flex-col justify-center">
-        <CardHeader className="text-center space-y-4">
-          <img src={logoImg} alt="Marcela Cammarota" className="h-10 mx-auto object-contain" />
+        <CardHeader className="text-center space-y-6">
+          <img src={logoImg} alt="Marcela Cammarota" className="h-10 mx-auto object-contain mb-4" />
           <CardTitle className="text-xl font-['Montserrat']">Acessar o CRM</CardTitle>
           <CardDescription>
             Informe seu email para receber o link de acesso
