@@ -27,11 +27,11 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
-      <div className="flex items-center justify-center py-6 px-4">
+      <div className="flex items-center justify-center py-6 px-2 overflow-hidden">
         <img
           src={collapsed ? logoIcon : logoImg}
           alt="Marcela Cammarota"
-          className={collapsed ? "h-8 w-auto" : "h-12 w-auto"}
+          className={collapsed ? "h-8 w-8 object-contain" : "h-12 w-auto object-contain"}
         />
       </div>
       <SidebarContent>
