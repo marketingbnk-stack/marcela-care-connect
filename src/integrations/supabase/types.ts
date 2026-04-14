@@ -14,7 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      lead_notes: {
+        Row: {
+          author: string
+          content: string
+          created_at: string
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          author: string
+          content: string
+          created_at?: string
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          author?: string
+          content?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_notes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_sources: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          age: number | null
+          city: string | null
+          created_at: string
+          email: string | null
+          id: string
+          last_interaction: string | null
+          name: string
+          phone: string
+          procedure: string
+          source: string
+          stage: Database["public"]["Enums"]["pipeline_stage"]
+          updated_at: string
+        }
+        Insert: {
+          age?: number | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_interaction?: string | null
+          name: string
+          phone: string
+          procedure: string
+          source: string
+          stage?: Database["public"]["Enums"]["pipeline_stage"]
+          updated_at?: string
+        }
+        Update: {
+          age?: number | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_interaction?: string | null
+          name?: string
+          phone?: string
+          procedure?: string
+          source?: string
+          stage?: Database["public"]["Enums"]["pipeline_stage"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      procedures: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +135,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      pipeline_stage:
+        | "novo_lead"
+        | "contato_feito"
+        | "consulta_agendada"
+        | "consulta_realizada"
+        | "procedimento_agendado"
+        | "realizado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +268,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      pipeline_stage: [
+        "novo_lead",
+        "contato_feito",
+        "consulta_agendada",
+        "consulta_realizada",
+        "procedimento_agendado",
+        "realizado",
+      ],
+    },
   },
 } as const
