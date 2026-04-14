@@ -27,13 +27,13 @@ export const mockLeads: Lead[] = [
   {
     id: "5", name: "Mariana Souza", phone: "5511995554433", email: "mari@email.com",
     age: 37, city: "São Paulo", source: "Orgânico", procedure: "Mamoplastia",
-    stage: "procedimento_agendado", created_at: "2026-04-01T06:00:00Z", updated_at: "2026-04-08T10:00:00Z",
+    stage: "procedimento_fechado", created_at: "2026-04-01T06:00:00Z", updated_at: "2026-04-08T10:00:00Z",
     last_interaction: "2026-04-08T10:00:00Z",
   },
   {
     id: "6", name: "Beatriz Lima", phone: "5511994443322", email: "bia@email.com",
     age: 45, city: "Jundiaí", source: "Evento", procedure: "Lifting Facial",
-    stage: "realizado", created_at: "2026-03-20T05:00:00Z", updated_at: "2026-04-07T09:00:00Z",
+    stage: "cirurgia_realizada", created_at: "2026-03-20T05:00:00Z", updated_at: "2026-04-07T09:00:00Z",
     last_interaction: "2026-04-07T09:00:00Z",
   },
   {

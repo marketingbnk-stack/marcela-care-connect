@@ -1,5 +1,5 @@
 import { useLeads } from "@/contexts/LeadsContext";
-import { PIPELINE_STAGES, SOURCE_COLORS } from "@/lib/constants";
+import { PIPELINE_STAGES, PIPE1_STAGES, PIPE2_STAGES, SPECIAL_STAGES, SOURCE_COLORS } from "@/lib/constants";
 import type { PipelineStage } from "@/lib/constants";
 import type { Lead } from "@/lib/types";
 import { formatPhone, formatDateTime, openWhatsApp } from "@/lib/whatsapp";
@@ -105,11 +105,12 @@ export function LeadDetailDialog({ lead, open, onOpenChange }: LeadDetailDialogP
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {PIPELINE_STAGES.map(s => (
-                    <SelectItem key={s.id} value={s.id}>
-                      <span className={`text-xs font-medium ${s.color}`}>{s.label}</span>
-                    </SelectItem>
-                  ))}
+                  <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground">Funil de Leads</div>
+                  {PIPE1_STAGES.map(s => <SelectItem key={s.id} value={s.id}><span className={`text-xs font-medium ${s.color}`}>{s.label}</span></SelectItem>)}
+                  <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground mt-1">Funil de Vendas</div>
+                  {PIPE2_STAGES.map(s => <SelectItem key={s.id} value={s.id}><span className={`text-xs font-medium ${s.color}`}>{s.label}</span></SelectItem>)}
+                  <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground mt-1">Outros</div>
+                  {SPECIAL_STAGES.map(s => <SelectItem key={s.id} value={s.id}><span className={`text-xs font-medium ${s.color}`}>{s.label}</span></SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
