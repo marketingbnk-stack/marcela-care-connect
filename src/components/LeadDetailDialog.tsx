@@ -127,6 +127,11 @@ export function LeadDetailDialog({ lead, open, onOpenChange }: LeadDetailDialogP
 
           <Separator />
 
+          {/* Anexos */}
+          <LeadAttachments leadId={lead.id} />
+
+          <Separator />
+
           {/* Notas */}
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-2 block">Notas</label>
