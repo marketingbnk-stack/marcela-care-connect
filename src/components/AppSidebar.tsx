@@ -1,5 +1,6 @@
 import { LayoutDashboard, Kanban, Users, BarChart3 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import logoImg from "@/assets/logo-branco.png";
 import {
   Sidebar,
   SidebarContent,
@@ -25,18 +26,11 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r-0">
       <div className="flex items-center justify-center py-6 px-4">
-        {collapsed ? (
-          <span className="text-xl font-bold text-sidebar-foreground">M</span>
-        ) : (
-          <div className="text-center">
-            <h1 className="text-lg font-bold tracking-wide text-sidebar-foreground">
-              MARCELA
-            </h1>
-            <p className="text-[10px] tracking-[0.3em] text-sidebar-foreground/70 uppercase">
-              Cammarota
-            </p>
-          </div>
-        )}
+        <img
+          src={logoImg}
+          alt="Marcela Cammarota"
+          className={collapsed ? "h-8 w-auto" : "h-12 w-auto"}
+        />
       </div>
       <SidebarContent>
         <SidebarGroup>
