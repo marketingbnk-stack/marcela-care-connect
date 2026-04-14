@@ -18,7 +18,7 @@ export default function Dashboard() {
   const totalLeads = leads.length;
   const newLeadsWeek = leads.filter(l => new Date(l.created_at) >= weekAgo).length;
   const consultasAgendadas = leads.filter(l => l.stage === "consulta_agendada").length;
-  const realizados = leads.filter(l => l.stage === "realizado").length;
+  const realizados = leads.filter(l => l.stage === "cirurgia_realizada" || l.stage === "pos_procedimento").length;
   const conversionRate = totalLeads > 0 ? Math.round((realizados / totalLeads) * 100) : 0;
 
   const sourceData = Object.entries(
