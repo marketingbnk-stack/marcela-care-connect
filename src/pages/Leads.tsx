@@ -19,12 +19,12 @@ type SortDir = "asc" | "desc";
 
 export default function Leads() {
   const { leads, moveLead } = useLeads();
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
