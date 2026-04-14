@@ -23,6 +23,7 @@ export function AgendaList() {
   const { data: appointments = [], isLoading } = useAppointments();
   const updateMutation = useUpdateAppointment();
   const deleteMutation = useDeleteAppointment();
+  const syncToGoogle = useSyncToGoogleCalendar();
 
   const handleStatusChange = (id: string, status: string) => {
     updateMutation.mutate({ id, status } as any, {
@@ -56,6 +57,7 @@ export function AgendaList() {
               <TableHead>Procedimento</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Lembretes</TableHead>
+              <TableHead>Google</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -89,6 +91,23 @@ export function AgendaList() {
                       24h {apt.reminder_24h_sent ? "✓" : "—"}
                     </Badge>
                   </div>
+                </TableCell>
+                <TableCell>
+                  {(apt as any).google_calendar_event_id ? (
+                    <Badge variant="outline" className="text-[10px] bg-green-50 text-green-600 border-green-200">
+                      <Check className="h-3 w-3 mr-0.5" /> Sync
+                    </Badge>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs gap-1 text-muted-foreground"
+                      onClick={() => syncToGoogle.mutate(apt.id)}
+                      disabled={syncToGoogle.isPending}
+                    >
+                      <CalendarSync className="h-3 w-3" />
+                    </Button>
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
