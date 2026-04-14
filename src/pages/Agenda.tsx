@@ -4,12 +4,26 @@ import { AgendaCalendar } from "@/components/agenda/AgendaCalendar";
 import { AgendaList } from "@/components/agenda/AgendaList";
 import { NewAppointmentDialog } from "@/components/agenda/NewAppointmentDialog";
 import { GoogleCalendarSync } from "@/components/agenda/GoogleCalendarSync";
+import { LeadDetailDialog } from "@/components/LeadDetailDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useLeads } from "@/contexts/LeadsContext";
+import type { Lead } from "@/lib/types";
 
 export default function Agenda() {
   const [newOpen, setNewOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const { leads } = useLeads();
+
+  const handleSelectLead = useCallback((leadId: string) => {
+    const lead = leads.find(l => l.id === leadId);
+    if (lead) {
+      setSelectedLead(lead);
+      setDetailOpen(true);
+    }
+  }, [leads]);
 
   return (
     <CRMLayout title="Agenda">
@@ -28,12 +42,13 @@ export default function Agenda() {
                 <Plus className="h-4 w-4" /> Novo Agendamento
               </Button>
             </div>
-            <TabsContent value="calendar"><AgendaCalendar /></TabsContent>
-            <TabsContent value="list"><AgendaList /></TabsContent>
+            <TabsContent value="calendar"><AgendaCalendar onSelectLead={handleSelectLead} /></TabsContent>
+            <TabsContent value="list"><AgendaList onSelectLead={handleSelectLead} /></TabsContent>
           </Tabs>
         </div>
       </div>
       <NewAppointmentDialog open={newOpen} onOpenChange={setNewOpen} />
+      <LeadDetailDialog lead={selectedLead} open={detailOpen} onOpenChange={setDetailOpen} />
     </CRMLayout>
   );
 }

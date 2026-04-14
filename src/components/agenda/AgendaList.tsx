@@ -19,7 +19,11 @@ const STATUS_COLORS: Record<string, string> = {
   realizado: "bg-blue-100 text-blue-700 border-blue-200",
 };
 
-export function AgendaList() {
+interface Props {
+  onSelectLead?: (leadId: string) => void;
+}
+
+export function AgendaList({ onSelectLead }: Props) {
   const { data: appointments = [], isLoading } = useAppointments();
   const updateMutation = useUpdateAppointment();
   const deleteMutation = useDeleteAppointment();
@@ -63,12 +67,12 @@ export function AgendaList() {
           </TableHeader>
           <TableBody>
             {appointments.map(apt => (
-              <TableRow key={apt.id}>
+              <TableRow key={apt.id} className="cursor-pointer" onClick={() => onSelectLead?.(apt.lead_id)}>
                 <TableCell className="font-medium">{formatDate(apt.scheduled_at)}</TableCell>
                 <TableCell>{formatTime(apt.scheduled_at)}</TableCell>
-                <TableCell>{apt.leads?.name || "—"}</TableCell>
+                <TableCell className="text-accent font-medium hover:underline">{apt.leads?.name || "—"}</TableCell>
                 <TableCell className="text-muted-foreground">{apt.procedure_name}</TableCell>
-                <TableCell>
+                <TableCell onClick={e => e.stopPropagation()}>
                   <Select value={apt.status} onValueChange={v => handleStatusChange(apt.id, v)}>
                     <SelectTrigger className="w-[140px] h-8">
                       <Badge variant="outline" className={`${STATUS_COLORS[apt.status]} text-[10px]`}>
@@ -102,14 +106,14 @@ export function AgendaList() {
                       size="sm"
                       variant="ghost"
                       className="h-7 text-xs gap-1 text-muted-foreground"
-                      onClick={() => syncToGoogle.mutate(apt.id)}
+                      onClick={(e) => { e.stopPropagation(); syncToGoogle.mutate(apt.id); }}
                       disabled={syncToGoogle.isPending}
                     >
                       <CalendarSync className="h-3 w-3" />
                     </Button>
                   )}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right" onClick={e => e.stopPropagation()}>
                   <div className="flex justify-end gap-1">
                     {apt.leads?.phone && (
                       <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"

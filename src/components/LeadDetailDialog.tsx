@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { MessageCircle, Phone, Mail, MapPin, User, Clock, Calendar } from "lucide-react";
 import { LeadAttachments } from "@/components/LeadAttachments";
+import { LeadAppointments } from "@/components/LeadAppointments";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -124,6 +125,11 @@ export function LeadDetailDialog({ lead, open, onOpenChange }: LeadDetailDialogP
           >
             <MessageCircle className="h-4 w-4" /> Enviar WhatsApp
           </Button>
+
+          <Separator />
+
+          {/* Agendamentos */}
+          <LeadAppointments leadId={lead.id} />
 
           <Separator />
 
