@@ -79,6 +79,7 @@ pendente, confirmado, cancelado, realizado
 - Quando não encontrar resultados, sugira alternativas.
 - Use todas as ferramentas disponíveis para resolver o que for pedido.
 - Pode encadear múltiplas ferramentas quando necessário (ex: buscar lead → criar agendamento).`;
+}
 
 const tools = [
   {
