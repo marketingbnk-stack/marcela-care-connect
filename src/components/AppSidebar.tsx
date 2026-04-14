@@ -1,4 +1,4 @@
-import { LayoutDashboard, Kanban, Users, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, Kanban, Users, BarChart3, Settings, CalendarDays } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import logoImg from "@/assets/logo-branco.png";
 import {
@@ -16,6 +16,7 @@ const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Pipeline", url: "/pipeline", icon: Kanban },
   { title: "Leads", url: "/leads", icon: Users },
+  { title: "Agenda", url: "/agenda", icon: CalendarDays },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
 ];
 
