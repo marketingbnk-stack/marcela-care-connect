@@ -124,7 +124,7 @@ export default function Leads() {
               {filtered.map(lead => {
                 const stage = PIPELINE_STAGES.find(s => s.id === lead.stage);
                 return (
-                  <TableRow key={lead.id} className="hover:bg-secondary/30 cursor-pointer" onClick={() => navigate(`/leads/${lead.id}`)}>
+                   <TableRow key={lead.id} className="hover:bg-secondary/30 cursor-pointer" onClick={() => setSelectedLead(lead)}>
                     <TableCell className="font-medium">{lead.name}</TableCell>
                     <TableCell className="text-muted-foreground">{formatPhone(lead.phone)}</TableCell>
                     <TableCell>
@@ -159,22 +159,13 @@ export default function Leads() {
                     <TableCell className="text-muted-foreground text-sm">{lead.procedure}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{formatDate(lead.created_at)}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          size="icon" variant="ghost"
-                          className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                          onClick={e => { e.stopPropagation(); openWhatsApp(lead.phone, `Olá ${lead.name}!`); }}
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon" variant="ghost"
-                          className="h-8 w-8"
-                          onClick={e => { e.stopPropagation(); navigate(`/leads/${lead.id}`); }}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <Button
+                        size="icon" variant="ghost"
+                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={e => { e.stopPropagation(); openWhatsApp(lead.phone, `Olá ${lead.name}!`); }}
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );
