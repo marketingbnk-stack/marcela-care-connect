@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { formatDate } from "@/lib/whatsapp";
+import { PIPELINE_STAGES, PIPE1_STAGES, PIPE2_STAGES, SPECIAL_STAGES } from "@/lib/constants";
 
 const STAGES = [
   { value: "novo_lead", label: "Novo Lead" },
