@@ -142,6 +142,7 @@ export default function Leads() {
                         <SelectTrigger 
                           className={`h-7 text-[11px] font-medium w-[170px] ${stage?.color || ""}`} 
                           onClick={e => e.stopPropagation()}
+                          onPointerDown={e => e.stopPropagation()}
                         >
                           <SelectValue />
                         </SelectTrigger>
