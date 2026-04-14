@@ -191,6 +191,20 @@ export default function Leads() {
         </div>
       </div>
       <LeadDetailDialog lead={selectedLead} open={!!selectedLead} onOpenChange={open => { if (!open) setSelectedLead(null); }} />
+      {scheduleDialog && (
+        <ScheduleConsultaDialog
+          open={true}
+          onOpenChange={(open) => { if (!open) setScheduleDialog(null); }}
+          leadId={scheduleDialog.lead.id}
+          leadName={scheduleDialog.lead.name}
+          procedure={scheduleDialog.lead.procedure}
+          onConfirm={() => {
+            moveLead(scheduleDialog.lead.id, "consulta_agendada" as PipelineStage);
+            toast.success(`${scheduleDialog.lead.name} movido para Consulta Agendada com agendamento!`);
+            setScheduleDialog(null);
+          }}
+        />
+      )}
     </CRMLayout>
   );
 }
