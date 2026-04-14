@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { NewLeadDialog } from "@/components/NewLeadDialog";
+import { CrmAssistant } from "@/components/CrmAssistant";
 
 interface CRMLayoutProps {
   children: React.ReactNode;
@@ -34,6 +35,7 @@ export function CRMLayout({ children, title }: CRMLayoutProps) {
         </div>
       </div>
       <NewLeadDialog open={newLeadOpen} onOpenChange={setNewLeadOpen} />
+      <CrmAssistant />
     </SidebarProvider>
   );
 }
