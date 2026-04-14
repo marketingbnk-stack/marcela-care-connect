@@ -124,7 +124,7 @@ export function AdminLeads() {
                     <TableCell>{lead.phone}</TableCell>
                     <TableCell>{lead.source}</TableCell>
                     <TableCell>{lead.procedure}</TableCell>
-                    <TableCell>{STAGES.find(s => s.value === lead.stage)?.label}</TableCell>
+                    <TableCell>{PIPELINE_STAGES.find(s => s.id === lead.stage)?.label || lead.stage}</TableCell>
                     <TableCell>{formatDate(lead.created_at)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
