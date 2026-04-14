@@ -8,11 +8,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import logoImg from "@/assets/logo-login.png";
 
+type LoginMode = "password" | "magiclink";
+
 export default function Auth() {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [mode, setMode] = useState<LoginMode>("password");
   const navigate = useNavigate();
+
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Preencha email e senha");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      toast.error(error.message === "Invalid login credentials" ? "Email ou senha incorretos" : error.message);
+    } else {
+      navigate("/");
+    }
+    setLoading(false);
+  };
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,14 +41,10 @@ export default function Auth() {
       return;
     }
     setLoading(true);
-
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: {
-        emailRedirectTo: window.location.origin,
-      },
+      options: { emailRedirectTo: window.location.origin },
     });
-
     if (error) {
       toast.error(error.message);
     } else {
@@ -70,31 +86,76 @@ export default function Auth() {
           <img src={logoImg} alt="Marcela Cammarota" className="h-10 mx-auto object-contain mb-4" />
           <CardTitle className="text-xl font-['Montserrat']">Acessar o CRM</CardTitle>
           <CardDescription>
-            Informe seu email para receber o link de acesso
+            {mode === "password" ? "Entre com seu email e senha" : "Receba um link de acesso no seu email"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleMagicLink} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-              disabled={loading}
+          {mode === "password" ? (
+            <form onSubmit={handlePasswordLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                disabled={loading}
+              >
+                {loading ? "Entrando..." : "Entrar"}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleMagicLink} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                disabled={loading}
+              >
+                {loading ? "Enviando..." : "Enviar link de acesso"}
+              </Button>
+            </form>
+          )}
+
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              className="text-sm text-muted-foreground hover:text-primary underline"
+              onClick={() => setMode(mode === "password" ? "magiclink" : "password")}
             >
-              {loading ? "Enviando..." : "Enviar link de acesso"}
-            </Button>
-          </form>
-          <p className="mt-4 text-xs text-center text-muted-foreground">
+              {mode === "password" ? "Entrar com link de acesso" : "Entrar com email e senha"}
+            </button>
+          </div>
+
+          <p className="mt-3 text-xs text-center text-muted-foreground">
             Acesso restrito. Apenas usuários autorizados podem entrar.
           </p>
         </CardContent>
