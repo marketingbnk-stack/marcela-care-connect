@@ -1,5 +1,7 @@
-import { LayoutDashboard, Kanban, Users, BarChart3, Settings, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Kanban, Users, BarChart3, Settings, CalendarDays, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import logoImg from "@/assets/logo-branco.png";
 import logoIcon from "@/assets/logo-icon-white.png";
 import {
