@@ -134,7 +134,13 @@ function LeadCard({ lead, onDragStart, onSelect, onStageChange }: {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex items-center justify-between mt-3">
+      {lead.next_step && (
+        <div className="mt-2 flex items-start gap-1.5 text-[10px] text-accent">
+          <span className="shrink-0">▶</span>
+          <span className="truncate">{lead.next_step}</span>
+        </div>
+      )}
+      <div className="flex items-center justify-between mt-2">
         <Badge variant="outline" className={`text-[10px] ${SOURCE_COLORS[lead.source] || ""}`}>{lead.source}</Badge>
         <div className="flex items-center gap-1">
           <span className="text-[10px] text-muted-foreground">{timeAgo(lead.created_at)}</span>
