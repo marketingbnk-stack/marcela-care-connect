@@ -10,6 +10,7 @@ export type AppointmentWithLead = {
   notes: string | null;
   reminder_48h_sent: boolean;
   reminder_24h_sent: boolean;
+  google_calendar_event_id: string | null;
   created_at: string;
   updated_at: string;
   leads: { name: string; phone: string; email: string | null } | null;

@@ -59,6 +59,7 @@ export type Database = {
       appointments: {
         Row: {
           created_at: string
+          google_calendar_event_id: string | null
           id: string
           lead_id: string
           notes: string | null
@@ -71,6 +72,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          google_calendar_event_id?: string | null
           id?: string
           lead_id: string
           notes?: string | null
@@ -83,6 +85,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          google_calendar_event_id?: string | null
           id?: string
           lead_id?: string
           notes?: string | null
@@ -213,6 +216,33 @@ export type Database = {
           is_active?: boolean
           start_time?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      integration_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }
