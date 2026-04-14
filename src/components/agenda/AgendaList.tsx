@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageCircle, Trash2, CalendarSync } from "lucide-react";
+import { MessageCircle, Trash2, CalendarSync, Check } from "lucide-react";
 import { useSyncToGoogleCalendar } from "@/hooks/useGoogleCalendar";
 import { openWhatsApp } from "@/lib/whatsapp";
 import { toast } from "sonner";
