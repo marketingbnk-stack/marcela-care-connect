@@ -71,6 +71,7 @@ pendente, confirmado, cancelado, realizado
 - Ao mover lead para "consulta_agendada", deve existir um agendamento de CONSULTA DE AVALIAÇÃO com data/hora.
 - Ao mover para "cirurgia_agendada", deve existir um agendamento de PROCEDIMENTO/CIRURGIA com data/hora.
 - Notas usam o campo "author" para identificar quem escreveu. Use "Assistente IA" quando você criar notas.
+- NUNCA permita dois agendamentos (não cancelados) para o mesmo paciente no mesmo dia. Se houver conflito, informe o agendamento existente e peça para escolher outra data.
 - Ao criar agendamento, o campo scheduled_at é timestamp com timezone (ISO 8601).
 - No campo notes do agendamento, identifique o tipo: "Consulta de Avaliação" ou "Procedimento/Cirurgia".
 - Ao atualizar lead, pode alterar: name, phone, email, age, city, source, procedure, stage.
@@ -555,6 +556,28 @@ async function executeTool(name: string, args: Record<string, unknown>, supabase
     }
 
     case "create_appointment": {
+      // Check for duplicate: same lead, same date (any time), non-cancelled
+      const reqDate = new Date(args.scheduled_at as string);
+      const dayStart = new Date(reqDate);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(reqDate);
+      dayEnd.setHours(23, 59, 59, 999);
+
+      const { data: existing } = await supabase
+        .from("appointments")
+        .select("id, scheduled_at, procedure_name, status")
+        .eq("lead_id", args.lead_id)
+        .neq("status", "cancelado")
+        .gte("scheduled_at", dayStart.toISOString())
+        .lte("scheduled_at", dayEnd.toISOString());
+
+      if (existing && existing.length > 0) {
+        return {
+          error: `Já existe um agendamento para este paciente no dia ${reqDate.toLocaleDateString("pt-BR")} (${existing[0].procedure_name}, status: ${existing[0].status}). Por favor, escolha outra data ou cancele o agendamento existente.`,
+          existing_appointments: existing,
+        };
+      }
+
       const { data, error } = await supabase.from("appointments").insert({
         lead_id: args.lead_id,
         procedure_name: args.procedure_name,

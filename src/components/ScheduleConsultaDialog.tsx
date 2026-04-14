@@ -44,6 +44,26 @@ export function ScheduleConsultaDialog({ open, onOpenChange, leadId, leadName, p
     const scheduledAt = new Date(date);
     scheduledAt.setHours(parseInt(hour), parseInt(minute), 0, 0);
 
+    // Check for duplicate appointment on same day
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(date);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const { data: existing } = await supabase
+      .from("appointments")
+      .select("id")
+      .eq("lead_id", leadId)
+      .neq("status", "cancelado")
+      .gte("scheduled_at", dayStart.toISOString())
+      .lte("scheduled_at", dayEnd.toISOString());
+
+    if (existing && existing.length > 0) {
+      toast.error("Este paciente já possui agendamento nesta data. Escolha outra data.");
+      setSaving(false);
+      return;
+    }
+
     // Create appointment
     const { error } = await supabase.from("appointments").insert({
       lead_id: leadId,
