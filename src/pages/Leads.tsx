@@ -146,10 +146,7 @@ export default function Leads() {
                     <TableCell>
                       <Select 
                         value={lead.stage} 
-                        onValueChange={(val) => { 
-                          moveLead(lead.id, val as PipelineStage); 
-                          toast.success(`${lead.name} movido para ${PIPELINE_STAGES.find(s => s.id === val)?.label}`);
-                        }}
+                        onValueChange={(val) => handleStageChange(lead, val as PipelineStage)}
                       >
                         <SelectTrigger 
                           className={`h-7 text-[11px] font-medium w-[170px] ${stage?.color || ""}`} 
