@@ -5,6 +5,7 @@ export const PIPELINE_STAGES = [
   { id: "consulta_realizada", label: "Consulta Realizada", color: "bg-coral-lighter text-coral" },
   { id: "procedimento_agendado", label: "Procedimento Agendado", color: "bg-purple-100 text-purple-700" },
   { id: "realizado", label: "Realizado", color: "bg-green-100 text-green-700" },
+  { id: "fornecedor", label: "Fornecedor", color: "bg-orange-100 text-orange-700" },
 ] as const;
 
 export type PipelineStage = typeof PIPELINE_STAGES[number]["id"];

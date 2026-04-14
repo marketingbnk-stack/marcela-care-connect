@@ -219,6 +219,39 @@ export type Database = {
         }
         Relationships: []
       }
+      fornecedores: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       integration_settings: {
         Row: {
           created_at: string
@@ -375,6 +408,7 @@ export type Database = {
         | "consulta_realizada"
         | "procedimento_agendado"
         | "realizado"
+        | "fornecedor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -510,6 +544,7 @@ export const Constants = {
         "consulta_realizada",
         "procedimento_agendado",
         "realizado",
+        "fornecedor",
       ],
     },
   },

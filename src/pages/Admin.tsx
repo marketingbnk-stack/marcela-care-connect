@@ -6,6 +6,7 @@ import { AdminProcedures } from "@/components/admin/AdminProcedures";
 import { AdminNotes } from "@/components/admin/AdminNotes";
 import { AdminAgents } from "@/components/admin/AdminAgents";
 import { AdminAvailability } from "@/components/admin/AdminAvailability";
+import { AdminFornecedores } from "@/components/admin/AdminFornecedores";
 
 export default function Admin() {
   return (
@@ -13,6 +14,7 @@ export default function Admin() {
       <Tabs defaultValue="leads" className="space-y-4">
         <TabsList className="bg-card border flex-wrap h-auto">
           <TabsTrigger value="leads">Leads</TabsTrigger>
+          <TabsTrigger value="fornecedores">Fornecedores</TabsTrigger>
           <TabsTrigger value="sources">Origens</TabsTrigger>
           <TabsTrigger value="procedures">Procedimentos</TabsTrigger>
           <TabsTrigger value="notes">Notas</TabsTrigger>
@@ -20,6 +22,7 @@ export default function Admin() {
           <TabsTrigger value="agents">Agentes IA</TabsTrigger>
         </TabsList>
         <TabsContent value="leads"><AdminLeads /></TabsContent>
+        <TabsContent value="fornecedores"><AdminFornecedores /></TabsContent>
         <TabsContent value="sources"><AdminSources /></TabsContent>
         <TabsContent value="procedures"><AdminProcedures /></TabsContent>
         <TabsContent value="notes"><AdminNotes /></TabsContent>
