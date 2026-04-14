@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          notes: string | null
+          procedure_name: string
+          reminder_24h_sent: boolean
+          reminder_48h_sent: boolean
+          scheduled_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          notes?: string | null
+          procedure_name: string
+          reminder_24h_sent?: boolean
+          reminder_48h_sent?: boolean
+          scheduled_at: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          notes?: string | null
+          procedure_name?: string
+          reminder_24h_sent?: boolean
+          reminder_48h_sent?: boolean
+          scheduled_at?: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_notes: {
         Row: {
           author: string
@@ -135,6 +182,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      appointment_status: "pendente" | "confirmado" | "cancelado" | "realizado"
       pipeline_stage:
         | "novo_lead"
         | "contato_feito"
@@ -269,6 +317,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      appointment_status: ["pendente", "confirmado", "cancelado", "realizado"],
       pipeline_stage: [
         "novo_lead",
         "contato_feito",
