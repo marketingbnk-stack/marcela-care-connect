@@ -1,7 +1,7 @@
 import { CRMLayout } from "@/components/CRMLayout";
 import { useLeads } from "@/contexts/LeadsContext";
 import type { PipelineStage } from "@/lib/constants";
-import { PIPELINE_STAGES, LEAD_SOURCES, SOURCE_COLORS } from "@/lib/constants";
+import { PIPELINE_STAGES, PIPE1_STAGES, PIPE2_STAGES, SPECIAL_STAGES, LEAD_SOURCES, SOURCE_COLORS } from "@/lib/constants";
 import { formatPhone, formatDate, openWhatsApp } from "@/lib/whatsapp";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
