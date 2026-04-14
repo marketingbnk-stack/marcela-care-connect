@@ -1,5 +1,7 @@
-import { LayoutDashboard, Kanban, Users, BarChart3, Settings, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Kanban, Users, BarChart3, Settings, CalendarDays, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import logoImg from "@/assets/logo-branco.png";
 import logoIcon from "@/assets/logo-icon-white.png";
 import {
@@ -24,6 +26,13 @@ const items = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth");
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -69,6 +78,14 @@ export function AppSidebar() {
                 <Settings className="h-5 w-5 shrink-0" />
                 {!collapsed && <span>Admin</span>}
               </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton className="h-11 cursor-pointer" onClick={handleLogout}>
+              <div className="flex items-center gap-3 px-4 text-sidebar-foreground/70 hover:text-destructive transition-colors">
+                <LogOut className="h-5 w-5 shrink-0" />
+                {!collapsed && <span>Sair</span>}
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
