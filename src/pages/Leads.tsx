@@ -15,7 +15,7 @@ type SortField = "name" | "procedure" | "created_at" | "source" | "stage";
 type SortDir = "asc" | "desc";
 
 export default function Leads() {
-  const { leads } = useLeads();
+  const { leads, moveLead } = useLeads();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
