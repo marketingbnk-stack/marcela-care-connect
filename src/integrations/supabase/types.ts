@@ -379,6 +379,7 @@ export type Database = {
           id: string
           last_interaction: string | null
           name: string
+          next_step: string | null
           phone: string
           procedure: string
           source: string
@@ -393,6 +394,7 @@ export type Database = {
           id?: string
           last_interaction?: string | null
           name: string
+          next_step?: string | null
           phone: string
           procedure: string
           source: string
@@ -407,11 +409,39 @@ export type Database = {
           id?: string
           last_interaction?: string | null
           name?: string
+          next_step?: string | null
           phone?: string
           procedure?: string
           source?: string
           stage?: Database["public"]["Enums"]["pipeline_stage"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      pipeline_next_steps: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          stage: string
+          step_order: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          stage: string
+          step_order?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          stage?: string
+          step_order?: number
+          title?: string
         }
         Relationships: []
       }

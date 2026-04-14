@@ -9,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { MessageCircle, Phone, Mail, MapPin, User, Clock, Calendar } from "lucide-react";
+import { MessageCircle, Phone, Mail, MapPin, User, Clock, Calendar, ListChecks, CheckCircle2 } from "lucide-react";
 import { LeadAttachments } from "@/components/LeadAttachments";
 import { LeadAppointments } from "@/components/LeadAppointments";
+import { usePipelineNextSteps } from "@/hooks/usePipelineNextSteps";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -22,8 +23,9 @@ interface LeadDetailDialogProps {
 }
 
 export function LeadDetailDialog({ lead, open, onOpenChange }: LeadDetailDialogProps) {
-  const { moveLead, addNote, getLeadNotes } = useLeads();
+  const { moveLead, addNote, getLeadNotes, updateLead } = useLeads();
   const [noteContent, setNoteContent] = useState("");
+  const { steps } = usePipelineNextSteps(lead?.stage);
 
   if (!lead) return null;
 
@@ -35,6 +37,16 @@ export function LeadDetailDialog({ lead, open, onOpenChange }: LeadDetailDialogP
     addNote(lead.id, noteContent.trim(), "Equipe");
     setNoteContent("");
     toast.success("Nota adicionada!");
+  };
+
+  const handleSelectNextStep = (stepTitle: string) => {
+    updateLead(lead.id, { next_step: stepTitle });
+    toast.success("Próxima etapa definida!");
+  };
+
+  const handleClearNextStep = () => {
+    updateLead(lead.id, { next_step: null as any });
+    toast.success("Próxima etapa removida!");
   };
 
   return (
@@ -116,6 +128,46 @@ export function LeadDetailDialog({ lead, open, onOpenChange }: LeadDetailDialogP
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Próxima Etapa */}
+          <div className="rounded-lg border border-accent/20 bg-accent/5 p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <ListChecks className="h-4 w-4 text-accent" />
+              <label className="text-xs font-semibold text-foreground">Próxima Etapa</label>
+            </div>
+            {lead.next_step && (
+              <div className="flex items-center gap-2 mb-2 p-2 rounded-md bg-accent/10 border border-accent/20">
+                <CheckCircle2 className="h-4 w-4 text-accent shrink-0" />
+                <span className="text-sm font-medium text-foreground flex-1">{lead.next_step}</span>
+                <Button variant="ghost" size="sm" className="h-6 text-[10px] text-muted-foreground hover:text-destructive" onClick={handleClearNextStep}>
+                  Limpar
+                </Button>
+              </div>
+            )}
+            {steps.length > 0 ? (
+              <div className="space-y-1.5">
+                <p className="text-[10px] text-muted-foreground">Ações sugeridas para esta etapa:</p>
+                {steps.map(step => (
+                  <button
+                    key={step.id}
+                    className={`w-full text-left p-2 rounded-md border text-xs transition-colors ${
+                      lead.next_step === step.title
+                        ? "bg-accent/15 border-accent/30 text-foreground"
+                        : "bg-card border-border hover:bg-secondary/50 text-foreground"
+                    }`}
+                    onClick={() => handleSelectNextStep(step.title)}
+                  >
+                    <span className="font-medium">{step.step_order}. {step.title}</span>
+                    {step.description && (
+                      <p className="text-muted-foreground mt-0.5">{step.description}</p>
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Nenhuma ação sugerida para esta etapa.</p>
+            )}
           </div>
 
           {/* WhatsApp */}

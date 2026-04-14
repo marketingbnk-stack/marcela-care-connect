@@ -13,6 +13,15 @@ export interface Lead {
   created_at: string;
   updated_at: string;
   last_interaction?: string;
+  next_step?: string;
+}
+
+export interface PipelineNextStep {
+  id: string;
+  stage: string;
+  step_order: number;
+  title: string;
+  description?: string;
 }
 
 export interface LeadNote {
