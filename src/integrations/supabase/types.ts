@@ -116,6 +116,7 @@ export type Database = {
           metadata: Json | null
           status: string
           updated_at: string
+          whatsapp_session_id: string | null
         }
         Insert: {
           agent_id?: string | null
@@ -126,6 +127,7 @@ export type Database = {
           metadata?: Json | null
           status?: string
           updated_at?: string
+          whatsapp_session_id?: string | null
         }
         Update: {
           agent_id?: string | null
@@ -136,6 +138,7 @@ export type Database = {
           metadata?: Json | null
           status?: string
           updated_at?: string
+          whatsapp_session_id?: string | null
         }
         Relationships: [
           {
