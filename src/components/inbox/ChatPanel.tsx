@@ -49,7 +49,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
   const initials = (conversation.contact_name || conversation.whatsapp_number || "?").slice(0, 2).toUpperCase();
 
   return (
-    <div className="flex flex-col h-full bg-secondary/20">
+    <div className="flex flex-col h-full bg-[#efeae2] dark:bg-[#0b141a]">
       {/* Header */}
       <div className="h-16 border-b bg-card px-4 md:px-5 flex items-center gap-3 shrink-0">
         {onBack && (
@@ -82,8 +82,15 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
         )}
       </div>
 
-      {/* Mensagens */}
-      <ScrollArea className="flex-1 px-5 py-4" ref={scrollRef as any}>
+      {/* Mensagens — fundo estilo WhatsApp com padrão sutil */}
+      <ScrollArea
+        className="flex-1 px-5 py-4"
+        ref={scrollRef as any}
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><circle cx='20' cy='20' r='1' fill='%23000' opacity='0.04'/></svg>\")",
+        }}
+      >
         {loading && <p className="text-center text-xs text-muted-foreground py-4">Carregando...</p>}
         {!loading && messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-12">
@@ -98,21 +105,24 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
               <div key={m.id} className={cn("flex", isOut ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
-                    "max-w-[85%] md:max-w-[75%] lg:max-w-[65%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
+                    "max-w-[85%] md:max-w-[75%] lg:max-w-[65%] rounded-lg px-3 py-1.5 text-sm shadow-sm",
                     isOut
-                      ? "bg-accent text-accent-foreground rounded-br-sm"
-                      : "bg-card border rounded-bl-sm text-foreground"
+                      ? "bg-[#d9fdd3] text-[#111b21] dark:bg-[#005c4b] dark:text-white rounded-tr-sm"
+                      : "bg-white text-[#111b21] dark:bg-[#202c33] dark:text-white rounded-tl-sm"
                   )}
                 >
                   {m.media_type && m.media_type !== "text" && (
                     <p className="text-[10px] uppercase opacity-70 mb-1">[{m.media_type}]</p>
                   )}
                   <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                  <div className={cn("flex items-center gap-1 justify-end mt-1 text-[10px]", isOut ? "text-accent-foreground/70" : "text-muted-foreground")}>
+                  <div className={cn(
+                    "flex items-center gap-1 justify-end mt-0.5 text-[10px]",
+                    isOut ? "text-[#667781] dark:text-white/60" : "text-[#667781] dark:text-white/50"
+                  )}>
                     <span>{new Date(m.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
                     {isOut && (
-                      m.status === "read" ? <CheckCheck className="h-3 w-3" /> :
-                      m.status === "delivered" ? <CheckCheck className="h-3 w-3 opacity-60" /> :
+                      m.status === "read" ? <CheckCheck className="h-3 w-3 text-[#53bdeb]" /> :
+                      m.status === "delivered" ? <CheckCheck className="h-3 w-3" /> :
                       m.status === "sent" ? <Check className="h-3 w-3" /> :
                       <Clock className="h-3 w-3" />
                     )}
