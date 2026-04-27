@@ -81,7 +81,14 @@ export function AppSidebar() {
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && <span className="flex-1">{item.title}</span>}
+                      {item.badge > 0 && (
+                        <span className={collapsed
+                          ? "absolute top-1 right-1 h-2 w-2 rounded-full bg-accent"
+                          : "ml-auto bg-accent text-accent-foreground text-[10px] font-semibold rounded-full px-1.5 min-w-[20px] text-center"}>
+                          {!collapsed && (item.badge > 99 ? "99+" : item.badge)}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
