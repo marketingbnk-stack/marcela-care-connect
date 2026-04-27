@@ -7,6 +7,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function normalizeHost(host?: string | null) {
+  if (!host) return null;
+  const trimmed = host.trim().replace(/\/$/, "");
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -31,9 +37,10 @@ serve(async (req) => {
   const supabase = createClient(supabaseUrl, serviceKey);
 
   try {
-    const { action } = await req.json();
+    const body = req.method === "GET" ? { action: "status" } : await req.json().catch(() => ({ action: "status" }));
+    const { action } = body;
 
-    const host = Deno.env.get("MEGA_API_HOST");
+    const host = normalizeHost(Deno.env.get("MEGA_API_HOST"));
     const apiToken = Deno.env.get("MEGA_API_TOKEN");
     const instanceKey = Deno.env.get("MEGA_API_INSTANCE_KEY");
 
@@ -52,7 +59,7 @@ serve(async (req) => {
       }
 
       // Consultar Mega API
-      const url = `${host!.replace(/\/$/, "")}/rest/instance/${instanceKey}`;
+      const url = `${host}/rest/instance/${instanceKey}`;
       const r = await fetch(url, { headers: { Authorization: `Bearer ${apiToken}` } });
       const out = await r.json().catch(() => ({}));
       console.log("[whatsapp-instance] status:", r.status, JSON.stringify(out).slice(0, 300));
@@ -78,7 +85,7 @@ serve(async (req) => {
 
     if (action === "qrcode") {
       if (!credsConfigured) return ok({ configured: false });
-      const url = `${host!.replace(/\/$/, "")}/rest/instance/qrcode_base64/${instanceKey}`;
+      const url = `${host}/rest/instance/qrcode_base64/${instanceKey}`;
       const r = await fetch(url, { headers: { Authorization: `Bearer ${apiToken}` } });
       const out = await r.json().catch(() => ({}));
       const qr = out?.qrcode || out?.base64 || out?.qr || null;
@@ -93,7 +100,7 @@ serve(async (req) => {
 
     if (action === "disconnect") {
       if (!credsConfigured) return ok({ configured: false });
-      const url = `${host!.replace(/\/$/, "")}/rest/instance/${instanceKey}/logout`;
+      const url = `${host}/rest/instance/${instanceKey}/logout`;
       const r = await fetch(url, { method: "DELETE", headers: { Authorization: `Bearer ${apiToken}` } });
       const out = await r.json().catch(() => ({}));
       await supabase.from("whatsapp_instances").update({ status: "disconnected", qr_code: null }).eq("instance_key", instanceKey!);
