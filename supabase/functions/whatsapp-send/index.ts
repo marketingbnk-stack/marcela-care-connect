@@ -7,6 +7,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function normalizeHost(host?: string | null) {
+  if (!host) return null;
+  const trimmed = host.trim().replace(/\/$/, "");
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -45,7 +51,7 @@ serve(async (req) => {
       .single();
     if (convErr || !conv?.whatsapp_number) throw new Error("Conversa não encontrada ou sem número WhatsApp");
 
-    const host = Deno.env.get("MEGA_API_HOST");
+    const host = normalizeHost(Deno.env.get("MEGA_API_HOST"));
     const token2 = Deno.env.get("MEGA_API_TOKEN");
     const instanceKey = Deno.env.get("MEGA_API_INSTANCE_KEY");
 
@@ -54,7 +60,7 @@ serve(async (req) => {
 
     if (host && token2 && instanceKey) {
       // Mega API endpoint padrão: POST {host}/rest/sendMessage/{instance_key}/text
-      const url = `${host.replace(/\/$/, "")}/rest/sendMessage/${instanceKey}/text`;
+      const url = `${host}/rest/sendMessage/${instanceKey}/text`;
       const resp = await fetch(url, {
         method: "POST",
         headers: {
