@@ -154,7 +154,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
             onClick={handleSend}
             disabled={!text.trim() || sending}
             size="icon"
-            className="h-11 w-11 bg-accent hover:bg-accent/90 text-accent-foreground shrink-0"
+            className="h-11 w-11 bg-[#00a884] hover:bg-[#06876b] text-white shrink-0"
           >
             <Send className="h-4 w-4" />
           </Button>
