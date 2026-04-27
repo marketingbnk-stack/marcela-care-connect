@@ -51,8 +51,13 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
   return (
     <div className="flex flex-col h-full bg-secondary/20">
       {/* Header */}
-      <div className="h-16 border-b bg-card px-5 flex items-center gap-3 shrink-0">
-        <div className="h-10 w-10 rounded-full bg-accent/15 text-accent font-semibold flex items-center justify-center">
+      <div className="h-16 border-b bg-card px-4 md:px-5 flex items-center gap-3 shrink-0">
+        {onBack && (
+          <Button variant="ghost" size="icon" className="md:hidden h-9 w-9 -ml-1" onClick={onBack}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
+        <div className="h-10 w-10 rounded-full bg-accent/15 text-accent font-semibold flex items-center justify-center shrink-0">
           {initials}
         </div>
         <div className="flex-1 min-w-0">
@@ -64,6 +69,17 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
             {conversation.whatsapp_number || "—"}
           </p>
         </div>
+        {onToggleContact && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden xl:inline-flex h-9 w-9"
+            onClick={onToggleContact}
+            title={contactOpen ? "Esconder painel" : "Mostrar painel"}
+          >
+            {contactOpen ? <PanelRightClose className="h-5 w-5" /> : <PanelRightOpen className="h-5 w-5" />}
+          </Button>
+        )}
       </div>
 
       {/* Mensagens */}
