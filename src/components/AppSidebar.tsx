@@ -1,8 +1,10 @@
-import { LayoutDashboard, Kanban, Users, BarChart3, Settings, CalendarDays, LogOut } from "lucide-react";
+import { LayoutDashboard, Kanban, Users, BarChart3, Settings, CalendarDays, LogOut, MessageCircle } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import logoImg from "@/assets/logo-branco.png";
 import logoIcon from "@/assets/logo-icon-white.png";
 import {
@@ -22,6 +24,25 @@ export function AppSidebar() {
   const { signOut } = useAuth();
   const { isComercial, isAdmin } = useUserRole();
   const navigate = useNavigate();
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from("chat_conversations")
+        .select("unread_count")
+        .eq("channel", "whatsapp")
+        .eq("is_archived", false);
+      const total = (data || []).reduce((s: number, c: any) => s + (c.unread_count || 0), 0);
+      setUnread(total);
+    };
+    load();
+    const ch = supabase
+      .channel("sidebar-unread")
+      .on("postgres_changes", { event: "*", schema: "public", table: "chat_conversations" }, load)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, []);
 
   const handleLogout = async () => {
     await signOut();
@@ -29,11 +50,12 @@ export function AppSidebar() {
   };
 
   const items = [
-    { title: "Dashboard", url: "/", icon: LayoutDashboard, show: true },
-    { title: "Pipeline", url: "/pipeline", icon: Kanban, show: !isComercial },
-    { title: "Leads", url: "/leads", icon: Users, show: true },
-    { title: "Agenda", url: "/agenda", icon: CalendarDays, show: true },
-    { title: "Relatórios", url: "/relatorios", icon: BarChart3, show: !isComercial },
+    { title: "Dashboard", url: "/", icon: LayoutDashboard, show: true, badge: 0 },
+    { title: "Inbox", url: "/inbox", icon: MessageCircle, show: true, badge: unread },
+    { title: "Pipeline", url: "/pipeline", icon: Kanban, show: !isComercial, badge: 0 },
+    { title: "Leads", url: "/leads", icon: Users, show: true, badge: 0 },
+    { title: "Agenda", url: "/agenda", icon: CalendarDays, show: true, badge: 0 },
+    { title: "Relatórios", url: "/relatorios", icon: BarChart3, show: !isComercial, badge: 0 },
   ];
 
   return (
