@@ -83,6 +83,30 @@ serve(async (req) => {
       return ok({ configured: true, status, phone, raw: out });
     }
 
+    if (action === "webhook" || action === "configure_webhook") {
+      if (!credsConfigured) return ok({ configured: false });
+
+      const webhookUrl = `${supabaseUrl.replace(/\/$/, "")}/functions/v1/whatsapp-webhook`;
+
+      if (action === "configure_webhook") {
+        const url = `${host}/rest/webhook/${instanceKey}/configWebhook`;
+        const r = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiToken}` },
+          body: JSON.stringify({ messageData: { webhookUrl, webhookEnabled: true } }),
+        });
+        const out = await r.json().catch(() => ({}));
+        console.log("[whatsapp-instance] configure webhook:", r.status, JSON.stringify(out).slice(0, 300));
+        return ok({ ok: r.ok, webhookUrl, raw: out }, r.ok ? 200 : 502);
+      }
+
+      const url = `${host}/rest/webhook/${instanceKey}`;
+      const r = await fetch(url, { headers: { Authorization: `Bearer ${apiToken}` } });
+      const out = await r.json().catch(() => ({}));
+      console.log("[whatsapp-instance] webhook:", r.status, JSON.stringify(out).slice(0, 300));
+      return ok({ ok: r.ok, expectedWebhookUrl: webhookUrl, raw: out }, r.ok ? 200 : 502);
+    }
+
     if (action === "qrcode") {
       if (!credsConfigured) return ok({ configured: false });
       const url = `${host}/rest/instance/qrcode_base64/${instanceKey}`;
