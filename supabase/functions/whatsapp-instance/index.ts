@@ -16,8 +16,14 @@ function normalizeHost(host?: string | null) {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  let requestBody: Record<string, unknown> = req.method === "GET"
+    ? { action: "status" }
+    : await req.json().catch(() => ({ action: "status" }));
+  const publicActions = new Set(["status", "webhook", "configure_webhook"]);
+  const action = typeof requestBody.action === "string" ? requestBody.action : "status";
+
   const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
+  if (!publicActions.has(action) && !authHeader?.startsWith("Bearer ")) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   }
 
@@ -25,21 +31,20 @@ serve(async (req) => {
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-  const authClient = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: authHeader } },
-  });
-  const token = authHeader.replace("Bearer ", "");
-  const { data: claims, error: cErr } = await authClient.auth.getClaims(token);
-  if (cErr || !claims?.claims) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+  if (!publicActions.has(action)) {
+    const authClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const token = authHeader!.replace("Bearer ", "");
+    const { data: claims, error: cErr } = await authClient.auth.getClaims(token);
+    if (cErr || !claims?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+    }
   }
 
   const supabase = createClient(supabaseUrl, serviceKey);
 
   try {
-    const body = req.method === "GET" ? { action: "status" } : await req.json().catch(() => ({ action: "status" }));
-    const { action } = body;
-
     const host = normalizeHost(Deno.env.get("MEGA_API_HOST"));
     const apiToken = Deno.env.get("MEGA_API_TOKEN");
     const instanceKey = Deno.env.get("MEGA_API_INSTANCE_KEY");
