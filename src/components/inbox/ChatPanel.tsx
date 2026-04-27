@@ -98,7 +98,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
               <div key={m.id} className={cn("flex", isOut ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
-                    "max-w-[70%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
+                    "max-w-[85%] md:max-w-[75%] lg:max-w-[65%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
                     isOut
                       ? "bg-accent text-accent-foreground rounded-br-sm"
                       : "bg-card border rounded-bl-sm text-foreground"
