@@ -3,16 +3,19 @@ import { Conversation, useMessages, sendMessage } from "@/hooks/useConversations
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Phone, MessageCircle, Check, CheckCheck, Clock } from "lucide-react";
+import { Send, Phone, MessageCircle, Check, CheckCheck, Clock, ArrowLeft, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { formatDateTime } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface Props {
   conversation: Conversation;
+  onBack?: () => void;
+  onToggleContact?: () => void;
+  contactOpen?: boolean;
 }
 
-export function ChatPanel({ conversation }: Props) {
+export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }: Props) {
   const { messages, loading, markAsRead } = useMessages(conversation.id);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
