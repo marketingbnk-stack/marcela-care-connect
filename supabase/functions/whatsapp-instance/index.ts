@@ -19,7 +19,7 @@ serve(async (req) => {
   let requestBody: Record<string, unknown> = req.method === "GET"
     ? { action: "status" }
     : await req.json().catch(() => ({ action: "status" }));
-  const publicActions = new Set(["status", "webhook", "configure_webhook"]);
+  const publicActions = new Set<string>();
   const action = typeof requestBody.action === "string" ? requestBody.action : "status";
 
   const authHeader = req.headers.get("Authorization");
