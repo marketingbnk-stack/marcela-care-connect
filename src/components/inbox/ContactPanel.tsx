@@ -40,7 +40,7 @@ export function ContactPanel({ conversation }: Props) {
 
   const updateStage = async (stage: string) => {
     if (!lead) return;
-    await supabase.from("leads").update({ stage }).eq("id", lead.id);
+    await supabase.from("leads").update({ stage: stage as any }).eq("id", lead.id);
     setLead({ ...lead, stage });
     toast.success("Etapa atualizada");
   };
