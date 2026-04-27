@@ -77,7 +77,7 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/"}
-                      className="flex items-center gap-3 px-4 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors rounded-lg"
+                      className="relative flex items-center gap-3 px-4 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors rounded-lg"
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
