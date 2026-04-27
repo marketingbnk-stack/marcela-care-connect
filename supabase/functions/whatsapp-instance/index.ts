@@ -16,8 +16,14 @@ function normalizeHost(host?: string | null) {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  let requestBody: Record<string, unknown> = req.method === "GET"
+    ? { action: "status" }
+    : await req.json().catch(() => ({ action: "status" }));
+  const publicActions = new Set(["status", "webhook", "configure_webhook"]);
+  const action = typeof requestBody.action === "string" ? requestBody.action : "status";
+
   const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
+  if (!publicActions.has(action) && !authHeader?.startsWith("Bearer ")) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   }
 
@@ -25,21 +31,20 @@ serve(async (req) => {
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-  const authClient = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: authHeader } },
-  });
-  const token = authHeader.replace("Bearer ", "");
-  const { data: claims, error: cErr } = await authClient.auth.getClaims(token);
-  if (cErr || !claims?.claims) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+  if (!publicActions.has(action)) {
+    const authClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const token = authHeader!.replace("Bearer ", "");
+    const { data: claims, error: cErr } = await authClient.auth.getClaims(token);
+    if (cErr || !claims?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+    }
   }
 
   const supabase = createClient(supabaseUrl, serviceKey);
 
   try {
-    const body = req.method === "GET" ? { action: "status" } : await req.json().catch(() => ({ action: "status" }));
-    const { action } = body;
-
     const host = normalizeHost(Deno.env.get("MEGA_API_HOST"));
     const apiToken = Deno.env.get("MEGA_API_TOKEN");
     const instanceKey = Deno.env.get("MEGA_API_INSTANCE_KEY");
@@ -81,6 +86,30 @@ serve(async (req) => {
       }
 
       return ok({ configured: true, status, phone, raw: out });
+    }
+
+    if (action === "webhook" || action === "configure_webhook") {
+      if (!credsConfigured) return ok({ configured: false });
+
+      const webhookUrl = `${supabaseUrl.replace(/\/$/, "")}/functions/v1/whatsapp-webhook`;
+
+      if (action === "configure_webhook") {
+        const url = `${host}/rest/webhook/${instanceKey}/configWebhook`;
+        const r = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiToken}` },
+          body: JSON.stringify({ messageData: { webhookUrl, webhookEnabled: true } }),
+        });
+        const out = await r.json().catch(() => ({}));
+        console.log("[whatsapp-instance] configure webhook:", r.status, JSON.stringify(out).slice(0, 300));
+        return ok({ ok: r.ok, webhookUrl, raw: out }, r.ok ? 200 : 502);
+      }
+
+      const url = `${host}/rest/webhook/${instanceKey}`;
+      const r = await fetch(url, { headers: { Authorization: `Bearer ${apiToken}` } });
+      const out = await r.json().catch(() => ({}));
+      console.log("[whatsapp-instance] webhook:", r.status, JSON.stringify(out).slice(0, 300));
+      return ok({ ok: r.ok, expectedWebhookUrl: webhookUrl, raw: out }, r.ok ? 200 : 502);
     }
 
     if (action === "qrcode") {
