@@ -3,16 +3,19 @@ import { Conversation, useMessages, sendMessage } from "@/hooks/useConversations
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Phone, MessageCircle, Check, CheckCheck, Clock } from "lucide-react";
+import { Send, Phone, MessageCircle, Check, CheckCheck, Clock, ArrowLeft, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { formatDateTime } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface Props {
   conversation: Conversation;
+  onBack?: () => void;
+  onToggleContact?: () => void;
+  contactOpen?: boolean;
 }
 
-export function ChatPanel({ conversation }: Props) {
+export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }: Props) {
   const { messages, loading, markAsRead } = useMessages(conversation.id);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
@@ -48,8 +51,13 @@ export function ChatPanel({ conversation }: Props) {
   return (
     <div className="flex flex-col h-full bg-secondary/20">
       {/* Header */}
-      <div className="h-16 border-b bg-card px-5 flex items-center gap-3 shrink-0">
-        <div className="h-10 w-10 rounded-full bg-accent/15 text-accent font-semibold flex items-center justify-center">
+      <div className="h-16 border-b bg-card px-4 md:px-5 flex items-center gap-3 shrink-0">
+        {onBack && (
+          <Button variant="ghost" size="icon" className="md:hidden h-9 w-9 -ml-1" onClick={onBack}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
+        <div className="h-10 w-10 rounded-full bg-accent/15 text-accent font-semibold flex items-center justify-center shrink-0">
           {initials}
         </div>
         <div className="flex-1 min-w-0">
@@ -61,6 +69,17 @@ export function ChatPanel({ conversation }: Props) {
             {conversation.whatsapp_number || "—"}
           </p>
         </div>
+        {onToggleContact && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden xl:inline-flex h-9 w-9"
+            onClick={onToggleContact}
+            title={contactOpen ? "Esconder painel" : "Mostrar painel"}
+          >
+            {contactOpen ? <PanelRightClose className="h-5 w-5" /> : <PanelRightOpen className="h-5 w-5" />}
+          </Button>
+        )}
       </div>
 
       {/* Mensagens */}
@@ -79,7 +98,7 @@ export function ChatPanel({ conversation }: Props) {
               <div key={m.id} className={cn("flex", isOut ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
-                    "max-w-[70%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
+                    "max-w-[85%] md:max-w-[75%] lg:max-w-[65%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
                     isOut
                       ? "bg-accent text-accent-foreground rounded-br-sm"
                       : "bg-card border rounded-bl-sm text-foreground"
