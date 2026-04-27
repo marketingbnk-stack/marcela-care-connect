@@ -8,6 +8,7 @@ import { AdminAgents } from "@/components/admin/AdminAgents";
 import { AdminAvailability } from "@/components/admin/AdminAvailability";
 import { AdminFornecedores } from "@/components/admin/AdminFornecedores";
 import { AdminUsers } from "@/components/admin/AdminUsers";
+import { AdminWhatsApp } from "@/components/admin/AdminWhatsApp";
 import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Admin() {
@@ -25,6 +26,7 @@ export default function Admin() {
           <TabsTrigger value="notes">Notas</TabsTrigger>
           <TabsTrigger value="availability">Disponibilidade</TabsTrigger>
           <TabsTrigger value="agents">Agentes IA</TabsTrigger>
+          <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
         </TabsList>
         {isMestre && <TabsContent value="users"><AdminUsers /></TabsContent>}
         <TabsContent value="leads"><AdminLeads /></TabsContent>
@@ -34,6 +36,7 @@ export default function Admin() {
         <TabsContent value="notes"><AdminNotes /></TabsContent>
         <TabsContent value="availability"><AdminAvailability /></TabsContent>
         <TabsContent value="agents"><AdminAgents /></TabsContent>
+        <TabsContent value="whatsapp"><AdminWhatsApp /></TabsContent>
       </Tabs>
     </CRMLayout>
   );

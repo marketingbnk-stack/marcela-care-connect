@@ -13,6 +13,7 @@ import LeadDetail from "./pages/LeadDetail";
 import Relatorios from "./pages/Relatorios";
 import Admin from "./pages/Admin";
 import Agenda from "./pages/Agenda";
+import Inbox from "./pages/Inbox";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -56,6 +57,7 @@ function ProtectedRoutes() {
         <Route path="/relatorios" element={isComercial ? <Navigate to="/" replace /> : <Relatorios />} />
         <Route path="/admin" element={isComercial ? <Navigate to="/" replace /> : <Admin />} />
         <Route path="/agenda" element={<Agenda />} />
+        <Route path="/inbox" element={<Inbox />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </LeadsProvider>
