@@ -109,35 +109,59 @@ export type Database = {
       chat_conversations: {
         Row: {
           agent_id: string | null
+          assigned_to: string | null
           channel: string
+          contact_name: string | null
           created_at: string
           id: string
+          is_archived: boolean
+          labels: string[]
+          last_message_at: string | null
+          last_message_preview: string | null
           lead_id: string | null
           metadata: Json | null
           status: string
+          unread_count: number
           updated_at: string
+          whatsapp_number: string | null
           whatsapp_session_id: string | null
         }
         Insert: {
           agent_id?: string | null
+          assigned_to?: string | null
           channel?: string
+          contact_name?: string | null
           created_at?: string
           id?: string
+          is_archived?: boolean
+          labels?: string[]
+          last_message_at?: string | null
+          last_message_preview?: string | null
           lead_id?: string | null
           metadata?: Json | null
           status?: string
+          unread_count?: number
           updated_at?: string
+          whatsapp_number?: string | null
           whatsapp_session_id?: string | null
         }
         Update: {
           agent_id?: string | null
+          assigned_to?: string | null
           channel?: string
+          contact_name?: string | null
           created_at?: string
           id?: string
+          is_archived?: boolean
+          labels?: string[]
+          last_message_at?: string | null
+          last_message_preview?: string | null
           lead_id?: string | null
           metadata?: Json | null
           status?: string
+          unread_count?: number
           updated_at?: string
+          whatsapp_number?: string | null
           whatsapp_session_id?: string | null
         }
         Relationships: [
@@ -162,25 +186,43 @@ export type Database = {
           content: string
           conversation_id: string
           created_at: string
+          direction: string
           id: string
+          media_type: string | null
+          media_url: string | null
           metadata: Json | null
           role: string
+          sender_name: string | null
+          status: string
+          whatsapp_message_id: string | null
         }
         Insert: {
           content: string
           conversation_id: string
           created_at?: string
+          direction?: string
           id?: string
+          media_type?: string | null
+          media_url?: string | null
           metadata?: Json | null
           role?: string
+          sender_name?: string | null
+          status?: string
+          whatsapp_message_id?: string | null
         }
         Update: {
           content?: string
           conversation_id?: string
           created_at?: string
+          direction?: string
           id?: string
+          media_type?: string | null
+          media_url?: string | null
           metadata?: Json | null
           role?: string
+          sender_name?: string | null
+          status?: string
+          whatsapp_message_id?: string | null
         }
         Relationships: [
           {
@@ -191,6 +233,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      conversation_labels: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
       doctor_availability: {
         Row: {
@@ -514,6 +577,42 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_instances: {
+        Row: {
+          created_at: string
+          id: string
+          instance_key: string
+          last_sync_at: string | null
+          phone_number: string | null
+          provider: string
+          qr_code: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instance_key: string
+          last_sync_at?: string | null
+          phone_number?: string | null
+          provider?: string
+          qr_code?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instance_key?: string
+          last_sync_at?: string | null
+          phone_number?: string | null
+          provider?: string
+          qr_code?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
