@@ -53,6 +53,21 @@ export function LeadsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchLeads();
     fetchNotes();
+
+    // Realtime: novos leads (ex: criados pelo webhook do WhatsApp) aparecem na hora
+    const leadsChannel = supabase
+      .channel("leads-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "leads" }, () => fetchLeads())
+      .subscribe();
+    const notesChannel = supabase
+      .channel("lead-notes-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "lead_notes" }, () => fetchNotes())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(leadsChannel);
+      supabase.removeChannel(notesChannel);
+    };
   }, [fetchLeads, fetchNotes]);
 
   const addLead = useCallback(async (lead: Omit<Lead, "id" | "created_at" | "updated_at">) => {
