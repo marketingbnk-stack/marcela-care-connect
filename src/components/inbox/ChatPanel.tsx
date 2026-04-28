@@ -3,12 +3,14 @@ import { Conversation, useMessages, sendMessage, uploadMedia } from "@/hooks/use
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Send, Phone, MessageCircle, Check, CheckCheck, Clock, ArrowLeft,
-  PanelRightClose, PanelRightOpen, Paperclip, Mic, X, FileText, Image as ImageIcon, Loader2, Square,
+  PanelRightClose, PanelRightOpen, Paperclip, Mic, X, FileText, Image as ImageIcon, Loader2, Square, Smile,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import EmojiPicker, { EmojiStyle, Theme, EmojiClickData } from "emoji-picker-react";
 
 interface Props {
   conversation: Conversation;
@@ -39,9 +41,28 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
   const [recordSeconds, setRecordSeconds] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mediaRecRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordTimerRef = useRef<number | null>(null);
+  const [emojiOpen, setEmojiOpen] = useState(false);
+
+  const insertEmoji = (emoji: string) => {
+    const ta = textareaRef.current;
+    if (!ta) {
+      setText(t => t + emoji);
+      return;
+    }
+    const start = ta.selectionStart ?? text.length;
+    const end = ta.selectionEnd ?? text.length;
+    const next = text.slice(0, start) + emoji + text.slice(end);
+    setText(next);
+    requestAnimationFrame(() => {
+      ta.focus();
+      const pos = start + emoji.length;
+      ta.setSelectionRange(pos, pos);
+    });
+  };
 
   useEffect(() => {
     if (conversation.unread_count > 0) markAsRead();
@@ -303,6 +324,38 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
           </div>
         ) : (
           <div className="flex gap-2 items-end">
+            <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-11 w-11 shrink-0"
+                  disabled={sending}
+                  title="Emoji"
+                >
+                  <Smile className="h-5 w-5 text-muted-foreground" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                side="top"
+                align="start"
+                className="p-0 border-0 bg-transparent shadow-none w-auto"
+              >
+                <EmojiPicker
+                  onEmojiClick={(d: EmojiClickData) => {
+                    insertEmoji(d.emoji);
+                  }}
+                  emojiStyle={EmojiStyle.NATIVE}
+                  theme={Theme.AUTO}
+                  width={340}
+                  height={400}
+                  searchPlaceholder="Buscar emoji..."
+                  previewConfig={{ showPreview: false }}
+                  skinTonesDisabled
+                  lazyLoadEmojis
+                />
+              </PopoverContent>
+            </Popover>
             <Button
               variant="ghost"
               size="icon"
@@ -314,6 +367,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
               <Paperclip className="h-5 w-5 text-muted-foreground" />
             </Button>
             <Textarea
+              ref={textareaRef}
               value={text}
               onChange={e => setText(e.target.value)}
               onKeyDown={e => {
