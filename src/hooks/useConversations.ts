@@ -93,10 +93,33 @@ export function useMessages(conversationId: string | null) {
   return { messages, loading, reload: load, markAsRead };
 }
 
-export async function sendMessage(conversationId: string, content: string) {
-  const { data, error } = await supabase.functions.invoke("whatsapp-send", {
-    body: { conversation_id: conversationId, content },
-  });
+export interface SendPayload {
+  content?: string;
+  media_url?: string;
+  media_type?: "image" | "video" | "audio" | "document";
+  media_name?: string;
+  caption?: string;
+}
+
+export async function sendMessage(conversationId: string, payload: string | SendPayload) {
+  const body =
+    typeof payload === "string"
+      ? { conversation_id: conversationId, content: payload }
+      : { conversation_id: conversationId, ...payload };
+  const { data, error } = await supabase.functions.invoke("whatsapp-send", { body });
   if (error) throw error;
   return data;
+}
+
+// Faz upload de um File para o bucket whatsapp-media e retorna URL pública
+export async function uploadMedia(file: File, conversationId: string): Promise<{ url: string; name: string }> {
+  const ext = file.name.split(".").pop() || "bin";
+  const path = `outbound/${conversationId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from("whatsapp-media").upload(path, file, {
+    contentType: file.type || "application/octet-stream",
+    upsert: false,
+  });
+  if (error) throw error;
+  const { data } = supabase.storage.from("whatsapp-media").getPublicUrl(path);
+  return { url: data.publicUrl, name: file.name };
 }

@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Conversation, useMessages, sendMessage } from "@/hooks/useConversations";
+import { Conversation, useMessages, sendMessage, uploadMedia } from "@/hooks/useConversations";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Phone, MessageCircle, Check, CheckCheck, Clock, ArrowLeft, PanelRightClose, PanelRightOpen } from "lucide-react";
-import { formatDateTime } from "@/lib/whatsapp";
+import {
+  Send, Phone, MessageCircle, Check, CheckCheck, Clock, ArrowLeft,
+  PanelRightClose, PanelRightOpen, Paperclip, Mic, X, FileText, Image as ImageIcon, Loader2, Square,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -15,11 +17,31 @@ interface Props {
   contactOpen?: boolean;
 }
 
+type PendingFile = {
+  file: File;
+  type: "image" | "video" | "audio" | "document";
+  previewUrl?: string;
+};
+
+function detectType(file: File): PendingFile["type"] {
+  if (file.type.startsWith("image/")) return "image";
+  if (file.type.startsWith("video/")) return "video";
+  if (file.type.startsWith("audio/")) return "audio";
+  return "document";
+}
+
 export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }: Props) {
   const { messages, loading, markAsRead } = useMessages(conversation.id);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [pending, setPending] = useState<PendingFile | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [recordSeconds, setRecordSeconds] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const mediaRecRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (conversation.unread_count > 0) markAsRead();
@@ -29,15 +51,91 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages.length]);
 
+  // Limpa preview quando troca de conversa
+  useEffect(() => {
+    setPending(null);
+    setText("");
+    stopRecording(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversation.id]);
+
+  const handlePickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 25 * 1024 * 1024) {
+      toast.error("Arquivo muito grande (máx 25MB).");
+      return;
+    }
+    const type = detectType(f);
+    const previewUrl = type === "image" || type === "video" ? URL.createObjectURL(f) : undefined;
+    setPending({ file: f, type, previewUrl });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const clearPending = () => {
+    if (pending?.previewUrl) URL.revokeObjectURL(pending.previewUrl);
+    setPending(null);
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "audio/webm";
+      const rec = new MediaRecorder(stream, { mimeType: mime });
+      audioChunksRef.current = [];
+      rec.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      rec.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(audioChunksRef.current, { type: mime });
+        const file = new File([blob], `audio-${Date.now()}.webm`, { type: mime });
+        setPending({ file, type: "audio" });
+      };
+      rec.start();
+      mediaRecRef.current = rec;
+      setRecording(true);
+      setRecordSeconds(0);
+      recordTimerRef.current = window.setInterval(() => setRecordSeconds(s => s + 1), 1000);
+    } catch (e) {
+      toast.error("Permissão de microfone negada.");
+    }
+  };
+
+  const stopRecording = (cancel = false) => {
+    if (recordTimerRef.current) { clearInterval(recordTimerRef.current); recordTimerRef.current = null; }
+    setRecording(false);
+    setRecordSeconds(0);
+    const rec = mediaRecRef.current;
+    if (rec && rec.state !== "inactive") {
+      if (cancel) {
+        rec.ondataavailable = null;
+        rec.onstop = () => rec.stream.getTracks().forEach(t => t.stop());
+      }
+      rec.stop();
+    }
+    mediaRecRef.current = null;
+  };
+
   const handleSend = async () => {
-    if (!text.trim() || sending) return;
+    if (sending) return;
+    if (!text.trim() && !pending) return;
     setSending(true);
     try {
-      const res = await sendMessage(conversation.id, text.trim());
-      setText("");
-      if (res?.status === "draft") {
-        toast.warning("Mensagem salva como rascunho — Mega API ainda não configurada.");
+      if (pending) {
+        const { url, name } = await uploadMedia(pending.file, conversation.id);
+        const res = await sendMessage(conversation.id, {
+          content: text.trim() || undefined,
+          media_url: url,
+          media_type: pending.type,
+          media_name: name,
+          caption: text.trim() || undefined,
+        });
+        if (res?.status === "draft") toast.warning("Mensagem salva como rascunho — Mega API ainda não configurada.");
+      } else {
+        const res = await sendMessage(conversation.id, text.trim());
+        if (res?.status === "draft") toast.warning("Mensagem salva como rascunho — Mega API ainda não configurada.");
       }
+      setText("");
+      clearPending();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Erro ao enviar";
       toast.error(msg);
@@ -48,8 +146,42 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
 
   const initials = (conversation.contact_name || conversation.whatsapp_number || "?").slice(0, 2).toUpperCase();
 
+  const renderMediaContent = (m: { media_url: string | null; media_type: string | null; content: string }) => {
+    if (!m.media_url || !m.media_type) return null;
+    if (m.media_type === "image") {
+      return (
+        <a href={m.media_url} target="_blank" rel="noreferrer" className="block mb-1">
+          <img src={m.media_url} alt="" className="rounded-md max-w-full max-h-64 object-cover" />
+        </a>
+      );
+    }
+    if (m.media_type === "video") {
+      return <video src={m.media_url} controls className="rounded-md max-w-full max-h-64 mb-1" />;
+    }
+    if (m.media_type === "audio") {
+      return <audio src={m.media_url} controls className="w-full mb-1" />;
+    }
+    if (m.media_type === "document") {
+      return (
+        <a href={m.media_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-2 mb-1 rounded bg-black/5 hover:bg-black/10 text-xs">
+          <FileText className="h-4 w-4 shrink-0" />
+          <span className="truncate underline">{m.content.replace(/^\[documento:?\s*|\]$/g, "") || "Documento"}</span>
+        </a>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="flex flex-col h-full bg-[#efeae2] dark:bg-[#0b141a]">
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        accept="image/*,video/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
+        onChange={handlePickFile}
+      />
+
       {/* Header */}
       <div className="h-16 border-b bg-card px-4 md:px-5 flex items-center gap-3 shrink-0">
         {onBack && (
@@ -70,19 +202,13 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
           </p>
         </div>
         {onToggleContact && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hidden xl:inline-flex h-9 w-9"
-            onClick={onToggleContact}
-            title={contactOpen ? "Esconder painel" : "Mostrar painel"}
-          >
+          <Button variant="ghost" size="icon" className="hidden xl:inline-flex h-9 w-9" onClick={onToggleContact}>
             {contactOpen ? <PanelRightClose className="h-5 w-5" /> : <PanelRightOpen className="h-5 w-5" />}
           </Button>
         )}
       </div>
 
-      {/* Mensagens — fundo estilo WhatsApp com padrão sutil */}
+      {/* Mensagens */}
       <ScrollArea
         className="flex-1 px-5 py-4"
         ref={scrollRef as any}
@@ -101,22 +227,24 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
         <div className="space-y-2">
           {messages.map(m => {
             const isOut = m.direction === "outbound";
+            const hasMedia = !!m.media_url && !!m.media_type;
+            const showText = m.content && !(hasMedia && m.content.startsWith("[") && m.content.endsWith("]"));
             return (
               <div key={m.id} className={cn("flex", isOut ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
-                    "max-w-[85%] md:max-w-[75%] lg:max-w-[65%] rounded-lg px-3 py-1.5 text-sm shadow-sm",
+                    "max-w-[85%] md:max-w-[75%] lg:max-w-[65%] rounded-lg px-2 py-1.5 text-sm shadow-sm",
                     isOut
                       ? "bg-[#d9fdd3] text-[#111b21] dark:bg-[#005c4b] dark:text-white rounded-tr-sm"
                       : "bg-white text-[#111b21] dark:bg-[#202c33] dark:text-white rounded-tl-sm"
                   )}
                 >
-                  {m.media_type && m.media_type !== "text" && (
-                    <p className="text-[10px] uppercase opacity-70 mb-1">[{m.media_type}]</p>
+                  {hasMedia && renderMediaContent(m)}
+                  {showText && (
+                    <p className="whitespace-pre-wrap break-words px-1">{m.content}</p>
                   )}
-                  <p className="whitespace-pre-wrap break-words">{m.content}</p>
                   <div className={cn(
-                    "flex items-center gap-1 justify-end mt-0.5 text-[10px]",
+                    "flex items-center gap-1 justify-end mt-0.5 text-[10px] px-1",
                     isOut ? "text-[#667781] dark:text-white/60" : "text-[#667781] dark:text-white/50"
                   )}>
                     <span>{new Date(m.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
@@ -134,31 +262,94 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
         </div>
       </ScrollArea>
 
-      {/* Input */}
-      <div className="border-t bg-card p-3 shrink-0">
-        <div className="flex gap-2 items-end">
-          <Textarea
-            value={text}
-            onChange={e => setText(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-            placeholder="Digite uma mensagem..."
-            className="min-h-[44px] max-h-32 resize-none text-sm"
-            rows={1}
-          />
-          <Button
-            onClick={handleSend}
-            disabled={!text.trim() || sending}
-            size="icon"
-            className="h-11 w-11 bg-[#00a884] hover:bg-[#06876b] text-white shrink-0"
-          >
-            <Send className="h-4 w-4" />
+      {/* Preview de anexo pendente */}
+      {pending && (
+        <div className="border-t bg-card px-3 py-2 flex items-center gap-3">
+          <div className="h-14 w-14 rounded bg-secondary flex items-center justify-center overflow-hidden shrink-0">
+            {pending.type === "image" && pending.previewUrl
+              ? <img src={pending.previewUrl} alt="" className="h-full w-full object-cover" />
+              : pending.type === "video" && pending.previewUrl
+              ? <video src={pending.previewUrl} className="h-full w-full object-cover" />
+              : pending.type === "audio"
+              ? <Mic className="h-6 w-6 text-accent" />
+              : <FileText className="h-6 w-6 text-muted-foreground" />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium truncate">{pending.file.name}</p>
+            <p className="text-[10px] text-muted-foreground capitalize">
+              {pending.type} • {(pending.file.size / 1024).toFixed(0)} KB
+            </p>
+          </div>
+          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={clearPending}>
+            <X className="h-4 w-4" />
           </Button>
         </div>
+      )}
+
+      {/* Input */}
+      <div className="border-t bg-card p-3 shrink-0">
+        {recording ? (
+          <div className="flex items-center gap-2">
+            <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-md bg-red-50 border border-red-200">
+              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-xs font-medium text-red-700">Gravando... {String(Math.floor(recordSeconds / 60)).padStart(2,"0")}:{String(recordSeconds % 60).padStart(2,"0")}</span>
+            </div>
+            <Button variant="outline" size="icon" className="h-11 w-11" onClick={() => stopRecording(true)} title="Cancelar">
+              <X className="h-4 w-4" />
+            </Button>
+            <Button size="icon" className="h-11 w-11 bg-[#00a884] hover:bg-[#06876b] text-white" onClick={() => stopRecording(false)} title="Parar e anexar">
+              <Square className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2 items-end">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-11 w-11 shrink-0"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={sending}
+              title="Anexar arquivo"
+            >
+              <Paperclip className="h-5 w-5 text-muted-foreground" />
+            </Button>
+            <Textarea
+              value={text}
+              onChange={e => setText(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              placeholder={pending ? "Adicione uma legenda..." : "Digite uma mensagem..."}
+              className="min-h-[44px] max-h-32 resize-none text-sm"
+              rows={1}
+              disabled={sending}
+            />
+            {!text.trim() && !pending ? (
+              <Button
+                size="icon"
+                className="h-11 w-11 bg-[#00a884] hover:bg-[#06876b] text-white shrink-0"
+                onClick={startRecording}
+                disabled={sending}
+                title="Gravar áudio"
+              >
+                <Mic className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSend}
+                disabled={sending}
+                size="icon"
+                className="h-11 w-11 bg-[#00a884] hover:bg-[#06876b] text-white shrink-0"
+                title="Enviar"
+              >
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
