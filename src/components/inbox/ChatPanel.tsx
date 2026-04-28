@@ -3,12 +3,14 @@ import { Conversation, useMessages, sendMessage, uploadMedia } from "@/hooks/use
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Send, Phone, MessageCircle, Check, CheckCheck, Clock, ArrowLeft,
-  PanelRightClose, PanelRightOpen, Paperclip, Mic, X, FileText, Image as ImageIcon, Loader2, Square,
+  PanelRightClose, PanelRightOpen, Paperclip, Mic, X, FileText, Image as ImageIcon, Loader2, Square, Smile,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import EmojiPicker, { EmojiStyle, Theme, EmojiClickData } from "emoji-picker-react";
 
 interface Props {
   conversation: Conversation;
