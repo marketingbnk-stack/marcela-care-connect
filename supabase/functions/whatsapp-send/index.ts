@@ -16,6 +16,7 @@ function normalizeHost(host?: string | null) {
 // Extrai o id da mensagem da resposta da Mega API (variações conhecidas)
 function extractMsgId(out: any): string | null {
   return (
+    out?.messageData?.key?.id ||
     out?.data?.key?.id ||
     out?.message?.key?.id ||
     out?.key?.id ||
