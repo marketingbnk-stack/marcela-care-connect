@@ -446,14 +446,21 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          landing_page: string | null
           last_interaction: string | null
           name: string
           next_step: string | null
           phone: string
           procedure: string
+          referrer: string | null
           source: string
           stage: Database["public"]["Enums"]["pipeline_stage"]
           updated_at: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
         }
         Insert: {
           age?: number | null
@@ -461,14 +468,21 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          landing_page?: string | null
           last_interaction?: string | null
           name: string
           next_step?: string | null
           phone: string
           procedure: string
+          referrer?: string | null
           source: string
           stage?: Database["public"]["Enums"]["pipeline_stage"]
           updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Update: {
           age?: number | null
@@ -476,14 +490,21 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          landing_page?: string | null
           last_interaction?: string | null
           name?: string
           next_step?: string | null
           phone?: string
           procedure?: string
+          referrer?: string | null
           source?: string
           stage?: Database["public"]["Enums"]["pipeline_stage"]
           updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: []
       }
