@@ -51,6 +51,8 @@
     --blue-medium: 219 40% 35%;
     --blue-light: 219 25% 59%;
     --blue-lighter: 220 24% 93%;
+    --whatsapp: 142 70% 49%;
+    --whatsapp-foreground: 0 0% 100%;
   }
 
   .dark {
