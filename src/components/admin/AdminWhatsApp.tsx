@@ -110,11 +110,12 @@ export function AdminWhatsApp() {
             {statusBadge()}
           </div>
 
+          {!statusData?.configured && (
             <div className="p-3 rounded-md bg-amber-50 border border-amber-200 text-xs text-amber-800 flex gap-2">
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <div>
                 <p className="font-medium mb-1">Credenciais da Mega API ainda não configuradas.</p>
-                <p>Adicione 3 secrets no backend: <code className="bg-amber-100 px-1 rounded">MEGA_API_HOST</code>, <code className="bg-amber-100 px-1 rounded">MEGA_API_TOKEN</code> e <code className="bg-amber-100 px-1 rounded">MEGA_API_INSTANCE_KEY</code>. A interface já está pronta — basta plugar.</p>
+                <p>Adicione 3 secrets no backend: <code className="bg-amber-100 px-1 rounded">MEGA_API_HOST</code>, <code className="bg-amber-100 px-1 rounded">MEGA_API_TOKEN</code> e <code className="bg-amber-100 px-1 rounded">MEGA_API_INSTANCE_KEY</code>.</p>
               </div>
             </div>
           )}
