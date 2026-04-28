@@ -16,9 +16,9 @@ export function CRMLayout({ children, title }: CRMLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="h-screen min-h-0 flex w-full overflow-hidden">
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0">
           <header className="h-16 flex items-center justify-between border-b bg-background px-6 shrink-0">
             <div className="flex items-center gap-3">
               <SidebarTrigger />
@@ -29,7 +29,7 @@ export function CRMLayout({ children, title }: CRMLayoutProps) {
               Novo Lead
             </Button>
           </header>
-          <main className="flex-1 overflow-auto p-6 bg-secondary/30">
+          <main className="flex-1 min-h-0 overflow-auto p-6 bg-secondary/30">
             {children}
           </main>
         </div>
