@@ -85,36 +85,48 @@ serve(async (req) => {
     let sendStatus = "pending";
 
     if (host && apiToken && instanceKey) {
-      // Endpoint depende do tipo
+      // Garante o formato @s.whatsapp.net pra contatos individuais
+      const rawTo = String(conv.whatsapp_number).replace(/\D/g, "");
+      const toJid = rawTo.includes("@") ? conv.whatsapp_number : `${rawTo}@s.whatsapp.net`;
+
       let url: string;
       let payload: any;
 
       if (media_url && media_type) {
-        // Mapeia tipo → endpoint Mega
-        const endpoint =
-          media_type === "image" ? "sendMediaMessageUrl" :
-          media_type === "video" ? "sendMediaMessageUrl" :
-          media_type === "audio" ? "sendMediaMessageUrl" :
-          "sendMediaMessageUrl"; // document
-        url = `${host}/rest/sendMessage/${instanceKey}/${endpoint}`;
+        // ptt = áudio gravado (mensagem de voz, igual WhatsApp Web)
+        // audio = arquivo de áudio compartilhado
+        // Detecta gravação: nome termina em .webm/.opus ou começa com "audio-"
+        const isVoiceNote = media_type === "audio" && (
+          /\.(webm|opus|ogg)$/i.test(media_name || "") ||
+          /^audio-\d+/i.test(media_name || "")
+        );
+        const waType =
+          media_type === "image" ? "image" :
+          media_type === "video" ? "video" :
+          media_type === "audio" ? (isVoiceNote ? "ptt" : "audio") :
+          "document";
+
+        const mimeType =
+          waType === "image" ? "image/jpeg" :
+          waType === "video" ? "video/mp4" :
+          waType === "ptt" || waType === "audio" ? "audio/ogg; codecs=opus" :
+          (media_name?.toLowerCase().endsWith(".pdf") ? "application/pdf" : "application/octet-stream");
+
+        url = `${host}/rest/sendMessage/${instanceKey}/mediaUrl`;
         payload = {
           messageData: {
-            to: conv.whatsapp_number,
-            type: media_type, // image | video | audio | document
+            to: toJid,
             url: media_url,
-            caption: caption || (media_type === "image" || media_type === "video" ? content : undefined),
-            fileName: media_name,
-            mimeType:
-              media_type === "image" ? "image/jpeg" :
-              media_type === "video" ? "video/mp4" :
-              media_type === "audio" ? "audio/ogg; codecs=opus" :
-              "application/pdf",
+            fileName: media_name || `arquivo.${waType === "ptt" ? "ogg" : waType === "image" ? "jpg" : waType === "video" ? "mp4" : "bin"}`,
+            type: waType,
+            caption: caption || content || "",
+            mimeType,
           },
         };
       } else {
         // texto puro
         url = `${host}/rest/sendMessage/${instanceKey}/text`;
-        payload = { messageData: { to: conv.whatsapp_number, text: content } };
+        payload = { messageData: { to: toJid, text: content } };
       }
 
       const resp = await fetch(url, {
