@@ -112,6 +112,34 @@ export async function sendMessage(conversationId: string, payload: string | Send
   return data;
 }
 
+export async function findOrCreateWhatsAppConversation(lead: { id: string; name: string; phone: string }) {
+  const cleanPhone = lead.phone.replace(/\D/g, "");
+  const { data: existing, error: findError } = await supabase
+    .from("chat_conversations")
+    .select("id")
+    .eq("channel", "whatsapp")
+    .or(`lead_id.eq.${lead.id},whatsapp_number.eq.${cleanPhone}`)
+    .maybeSingle();
+
+  if (findError) throw findError;
+  if (existing?.id) return existing.id;
+
+  const { data, error } = await supabase
+    .from("chat_conversations")
+    .insert({
+      channel: "whatsapp",
+      lead_id: lead.id,
+      contact_name: lead.name,
+      whatsapp_number: cleanPhone,
+      status: "open",
+    })
+    .select("id")
+    .single();
+
+  if (error) throw error;
+  return data.id;
+}
+
 // Faz upload de um File para o bucket whatsapp-media e retorna URL pública
 export async function uploadMedia(file: File, conversationId: string): Promise<{ url: string; name: string }> {
   const ext = file.name.split(".").pop() || "bin";
