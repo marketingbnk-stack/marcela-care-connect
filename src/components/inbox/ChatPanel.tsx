@@ -294,7 +294,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
 
       {/* Preview de anexo pendente */}
       {pending && (
-        <div className="border-t bg-card px-3 py-2 flex items-center gap-3">
+        <div className="border-t bg-card px-3 py-2 flex items-center gap-3 shrink-0">
           <div className="h-14 w-14 rounded bg-secondary flex items-center justify-center overflow-hidden shrink-0">
             {pending.type === "image" && pending.previewUrl
               ? <img src={pending.previewUrl} alt="" className="h-full w-full object-cover" />
@@ -317,7 +317,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
       )}
 
       {/* Input */}
-      <div className="border-t bg-card p-3 shrink-0">
+      <div className="sticky bottom-0 z-10 border-t bg-card p-3 shrink-0">
         {recording ? (
           <div className="flex items-center gap-2">
             <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-md bg-red-50 border border-red-200">

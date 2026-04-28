@@ -45,8 +45,8 @@ export function ConversationsList({ conversations, selectedId, onSelect }: Props
   const labelMap = useMemo(() => Object.fromEntries(labels.map(l => [l.name, l])), [labels]);
 
   return (
-    <div className="flex flex-col h-full bg-card border-r">
-      <div className="p-3 border-b space-y-3">
+    <div className="flex flex-col h-full min-h-0 bg-card border-r">
+      <div className="p-3 border-b space-y-3 shrink-0">
         <div className="relative">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -74,7 +74,7 @@ export function ConversationsList({ conversations, selectedId, onSelect }: Props
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         {filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <MessageCircle className="h-10 w-10 mb-2 opacity-30" />

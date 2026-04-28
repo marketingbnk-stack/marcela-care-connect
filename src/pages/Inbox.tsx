@@ -28,9 +28,9 @@ export default function Inbox() {
 
   return (
     <CRMLayout title="Inbox WhatsApp">
-      <div className={`-m-6 h-[calc(100vh-4rem)] grid ${cols} bg-background overflow-hidden`}>
+      <div className={`-m-6 h-full min-h-0 grid ${cols} bg-background overflow-hidden`}>
         {/* Lista — esconde no mobile quando uma conversa está aberta */}
-        <div className={selected ? "hidden md:block" : "block"}>
+        <div className={selected ? "hidden md:block min-h-0" : "block min-h-0"}>
           <ConversationsList
             conversations={conversations}
             selectedId={selectedId}
@@ -39,7 +39,7 @@ export default function Inbox() {
         </div>
 
         {/* Chat */}
-        <div className={selected ? "block" : "hidden md:block"}>
+        <div className={selected ? "block min-h-0" : "hidden md:block min-h-0"}>
           {selected ? (
             <ChatPanel
               conversation={selected}
@@ -57,7 +57,7 @@ export default function Inbox() {
 
         {/* Painel de contato — só em xl, e quando contactOpen */}
         {selected && contactOpen && (
-          <div className="hidden xl:block">
+          <div className="hidden xl:block min-h-0">
             <ContactPanel conversation={selected} />
           </div>
         )}
