@@ -9,6 +9,7 @@ import { AdminAvailability } from "@/components/admin/AdminAvailability";
 import { AdminFornecedores } from "@/components/admin/AdminFornecedores";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminWhatsApp } from "@/components/admin/AdminWhatsApp";
+import { AdminUTM } from "@/components/admin/AdminUTM";
 import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Admin() {
