@@ -194,7 +194,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#efeae2] dark:bg-[#0b141a]">
+    <div className="flex flex-col h-full min-h-0 bg-[#efeae2] dark:bg-[#0b141a]">
       <input
         ref={fileInputRef}
         type="file"
@@ -240,7 +240,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
 
       {/* Mensagens */}
       <ScrollArea
-        className="flex-1 px-5 py-4"
+        className="flex-1 min-h-0 px-5 py-4"
         ref={scrollRef as any}
         style={{
           backgroundImage:
