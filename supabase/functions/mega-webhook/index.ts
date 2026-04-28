@@ -282,26 +282,46 @@ serve(async (req) => {
       }
     }
 
+    // Extrai UTMs do texto da mensagem (formato wa.me com query string codificada)
+    // Aceita: "Vim do Instagram - utm_source=ig&utm_campaign=botox" ou só "utm_source=ig&utm_campaign=botox"
+    const utm: Record<string, string> = {};
+    if (content) {
+      const utmRegex = /utm_(source|medium|campaign|term|content)=([^\s&|,;]+)/gi;
+      let m: RegExpExecArray | null;
+      while ((m = utmRegex.exec(content)) !== null) {
+        utm[`utm_${m[1].toLowerCase()}`] = decodeURIComponent(m[2]);
+      }
+    }
+    const hasUtm = Object.keys(utm).length > 0;
+
     // 1) Lead
     const last10 = phone.slice(-10);
     let leadId: string | null = null;
     const { data: existingLead } = await supabase
       .from("leads")
-      .select("id")
+      .select("id, utm_source")
       .ilike("phone", `%${last10}%`)
       .maybeSingle();
 
     if (existingLead) {
       leadId = existingLead.id;
+      // Se chegou nova UTM e o lead ainda não tinha, aplica
+      if (hasUtm && !existingLead.utm_source) {
+        await supabase.from("leads").update(utm).eq("id", leadId);
+      }
     } else {
+      const sourceLabel = hasUtm
+        ? `${utm.utm_source || "WhatsApp"}${utm.utm_campaign ? ` / ${utm.utm_campaign}` : ""}`
+        : "WhatsApp";
       const { data: newLead, error: leadErr } = await supabase
         .from("leads")
         .insert({
           name: name || `WhatsApp ${last10.slice(-4)}`,
           phone,
-          source: "WhatsApp",
+          source: sourceLabel,
           procedure: "A definir",
           stage: "novo_lead",
+          ...utm,
         })
         .select("id")
         .single();

@@ -118,6 +118,56 @@ export default function LeadDetail() {
                 </Select>
               </CardContent>
             </Card>
+
+            {(lead.utm_source || lead.utm_campaign || lead.utm_medium || lead.referrer || lead.landing_page) && (
+              <Card className="border-none shadow-sm">
+                <CardHeader><CardTitle className="text-sm">Origem & Campanha</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-xs">
+                  {lead.utm_source && (
+                    <div className="flex justify-between gap-2">
+                      <span className="text-muted-foreground">Source</span>
+                      <Badge variant="secondary" className="font-mono">{lead.utm_source}</Badge>
+                    </div>
+                  )}
+                  {lead.utm_medium && (
+                    <div className="flex justify-between gap-2">
+                      <span className="text-muted-foreground">Medium</span>
+                      <span className="font-mono">{lead.utm_medium}</span>
+                    </div>
+                  )}
+                  {lead.utm_campaign && (
+                    <div className="flex justify-between gap-2">
+                      <span className="text-muted-foreground">Campanha</span>
+                      <span className="font-mono text-right break-all">{lead.utm_campaign}</span>
+                    </div>
+                  )}
+                  {lead.utm_term && (
+                    <div className="flex justify-between gap-2">
+                      <span className="text-muted-foreground">Term</span>
+                      <span className="font-mono text-right break-all">{lead.utm_term}</span>
+                    </div>
+                  )}
+                  {lead.utm_content && (
+                    <div className="flex justify-between gap-2">
+                      <span className="text-muted-foreground">Content</span>
+                      <span className="font-mono text-right break-all">{lead.utm_content}</span>
+                    </div>
+                  )}
+                  {lead.referrer && (
+                    <div className="pt-2 border-t">
+                      <span className="text-muted-foreground block">Referrer</span>
+                      <span className="break-all text-[10px]">{lead.referrer}</span>
+                    </div>
+                  )}
+                  {lead.landing_page && (
+                    <div>
+                      <span className="text-muted-foreground block">Landing page</span>
+                      <span className="break-all text-[10px]">{lead.landing_page}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Timeline */}

@@ -14,6 +14,13 @@ export interface Lead {
   updated_at: string;
   last_interaction?: string;
   next_step?: string;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_term?: string | null;
+  utm_content?: string | null;
+  referrer?: string | null;
+  landing_page?: string | null;
 }
 
 export interface PipelineNextStep {

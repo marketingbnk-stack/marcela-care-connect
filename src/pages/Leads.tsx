@@ -23,10 +23,17 @@ export default function Leads() {
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
+  const [campaignFilter, setCampaignFilter] = useState("all");
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [scheduleDialog, setScheduleDialog] = useState<{ lead: Lead } | null>(null);
+
+  const campaignOptions = useMemo(() => {
+    const set = new Set<string>();
+    leads.forEach(l => { if (l.utm_campaign) set.add(l.utm_campaign); });
+    return Array.from(set).sort();
+  }, [leads]);
 
   const handleStageChange = (lead: Lead, newStage: PipelineStage) => {
     if (newStage === "consulta_agendada" && lead.stage !== "consulta_agendada") {
@@ -58,7 +65,8 @@ export default function Leads() {
       const matchSearch = l.name.toLowerCase().includes(search.toLowerCase()) || l.phone.includes(search);
       const matchSource = sourceFilter === "all" || l.source === sourceFilter;
       const matchStage = stageFilter === "all" || l.stage === stageFilter;
-      return matchSearch && matchSource && matchStage;
+      const matchCampaign = campaignFilter === "all" || l.utm_campaign === campaignFilter;
+      return matchSearch && matchSource && matchStage && matchCampaign;
     });
     if (sortField) {
       result = [...result].sort((a, b) => {
@@ -75,7 +83,7 @@ export default function Leads() {
       });
     }
     return result;
-  }, [leads, search, sourceFilter, stageFilter, sortField, sortDir]);
+  }, [leads, search, sourceFilter, stageFilter, campaignFilter, sortField, sortDir]);
 
   return (
     <CRMLayout title="Leads">
@@ -105,6 +113,15 @@ export default function Leads() {
               {PIPELINE_STAGES.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
             </SelectContent>
           </Select>
+          {campaignOptions.length > 0 && (
+            <Select value={campaignFilter} onValueChange={setCampaignFilter}>
+              <SelectTrigger className="w-[200px]"><SelectValue placeholder="Campanha" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as campanhas</SelectItem>
+                {campaignOptions.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {/* Table */}

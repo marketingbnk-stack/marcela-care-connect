@@ -9,6 +9,7 @@ import { AdminAvailability } from "@/components/admin/AdminAvailability";
 import { AdminFornecedores } from "@/components/admin/AdminFornecedores";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminWhatsApp } from "@/components/admin/AdminWhatsApp";
+import { AdminUTM } from "@/components/admin/AdminUTM";
 import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Admin() {
@@ -27,6 +28,7 @@ export default function Admin() {
           <TabsTrigger value="availability">Disponibilidade</TabsTrigger>
           <TabsTrigger value="agents">Agentes IA</TabsTrigger>
           <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
+          <TabsTrigger value="utm">Marketing / UTM</TabsTrigger>
         </TabsList>
         {isMestre && <TabsContent value="users"><AdminUsers /></TabsContent>}
         <TabsContent value="leads"><AdminLeads /></TabsContent>
@@ -37,6 +39,7 @@ export default function Admin() {
         <TabsContent value="availability"><AdminAvailability /></TabsContent>
         <TabsContent value="agents"><AdminAgents /></TabsContent>
         <TabsContent value="whatsapp"><AdminWhatsApp /></TabsContent>
+        <TabsContent value="utm"><AdminUTM /></TabsContent>
       </Tabs>
     </CRMLayout>
   );
