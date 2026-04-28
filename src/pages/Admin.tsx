@@ -39,6 +39,7 @@ export default function Admin() {
         <TabsContent value="availability"><AdminAvailability /></TabsContent>
         <TabsContent value="agents"><AdminAgents /></TabsContent>
         <TabsContent value="whatsapp"><AdminWhatsApp /></TabsContent>
+        <TabsContent value="utm"><AdminUTM /></TabsContent>
       </Tabs>
     </CRMLayout>
   );
