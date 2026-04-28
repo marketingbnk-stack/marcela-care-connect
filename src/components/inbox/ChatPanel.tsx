@@ -210,8 +210,17 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
             <ArrowLeft className="h-5 w-5" />
           </Button>
         )}
-        <div className="h-10 w-10 rounded-full bg-accent/15 text-accent font-semibold flex items-center justify-center shrink-0">
-          {initials}
+        <div className="h-10 w-10 rounded-full bg-accent/15 text-accent font-semibold flex items-center justify-center shrink-0 overflow-hidden">
+          {conversation.avatar_url ? (
+            <img
+              src={conversation.avatar_url}
+              alt={conversation.contact_name || "contato"}
+              className="h-full w-full object-cover"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            />
+          ) : (
+            initials
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-sm text-foreground truncate">
