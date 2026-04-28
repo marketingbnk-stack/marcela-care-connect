@@ -28,6 +28,7 @@ export default function Admin() {
           <TabsTrigger value="availability">Disponibilidade</TabsTrigger>
           <TabsTrigger value="agents">Agentes IA</TabsTrigger>
           <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
+          <TabsTrigger value="utm">Marketing / UTM</TabsTrigger>
         </TabsList>
         {isMestre && <TabsContent value="users"><AdminUsers /></TabsContent>}
         <TabsContent value="leads"><AdminLeads /></TabsContent>
