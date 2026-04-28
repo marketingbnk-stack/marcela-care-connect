@@ -2,7 +2,7 @@ import { CRMLayout } from "@/components/CRMLayout";
 import { useLeads } from "@/contexts/LeadsContext";
 import type { PipelineStage } from "@/lib/constants";
 import { PIPELINE_STAGES, PIPE1_STAGES, PIPE2_STAGES, SPECIAL_STAGES, LEAD_SOURCES, SOURCE_COLORS } from "@/lib/constants";
-import { formatPhone, formatDate, openWhatsApp } from "@/lib/whatsapp";
+import { formatPhone, formatDate } from "@/lib/whatsapp";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LeadDetailDialog } from "@/components/LeadDetailDialog";
 import { ScheduleConsultaDialog } from "@/components/ScheduleConsultaDialog";
-import { MessageCircle, Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { StartWhatsAppButton } from "@/components/inbox/StartWhatsAppButton";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
 import type { Lead } from "@/lib/types";
@@ -185,13 +186,7 @@ export default function Leads() {
                     <TableCell className="text-muted-foreground text-sm">{lead.procedure}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{formatDate(lead.created_at)}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        size="icon" variant="ghost"
-                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                        onClick={e => { e.stopPropagation(); openWhatsApp(lead.phone, `Olá ${lead.name}!`); }}
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                      </Button>
+                      <StartWhatsAppButton lead={lead} label="Converse" size="sm" className="h-8 px-3 text-xs" />
                     </TableCell>
                   </TableRow>
                 );
