@@ -23,10 +23,17 @@ export default function Leads() {
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
+  const [campaignFilter, setCampaignFilter] = useState("all");
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [scheduleDialog, setScheduleDialog] = useState<{ lead: Lead } | null>(null);
+
+  const campaignOptions = useMemo(() => {
+    const set = new Set<string>();
+    leads.forEach(l => { if (l.utm_campaign) set.add(l.utm_campaign); });
+    return Array.from(set).sort();
+  }, [leads]);
 
   const handleStageChange = (lead: Lead, newStage: PipelineStage) => {
     if (newStage === "consulta_agendada" && lead.stage !== "consulta_agendada") {
