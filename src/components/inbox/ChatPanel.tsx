@@ -194,7 +194,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#efeae2] dark:bg-[#0b141a]">
+    <div className="flex flex-col h-full min-h-0 bg-[#efeae2] dark:bg-[#0b141a]">
       <input
         ref={fileInputRef}
         type="file"
