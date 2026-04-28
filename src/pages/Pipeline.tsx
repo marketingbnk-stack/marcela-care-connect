@@ -3,14 +3,15 @@ import { useLeads } from "@/contexts/LeadsContext";
 import { PIPE1_STAGES, PIPE2_STAGES, SPECIAL_STAGES, PIPELINE_STAGES, SOURCE_COLORS } from "@/lib/constants";
 import type { PipelineStage } from "@/lib/constants";
 import type { Lead } from "@/lib/types";
-import { openWhatsApp, timeAgo } from "@/lib/whatsapp";
+import { timeAgo } from "@/lib/whatsapp";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LeadDetailDialog } from "@/components/LeadDetailDialog";
 import { ScheduleConsultaDialog } from "@/components/ScheduleConsultaDialog";
-import { MessageCircle, GripVertical } from "lucide-react";
+import { GripVertical } from "lucide-react";
+import { StartWhatsAppButton } from "@/components/inbox/StartWhatsAppButton";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -144,10 +145,7 @@ function LeadCard({ lead, onDragStart, onSelect, onStageChange }: {
         <Badge variant="outline" className={`text-[10px] ${SOURCE_COLORS[lead.source] || ""}`}>{lead.source}</Badge>
         <div className="flex items-center gap-1">
           <span className="text-[10px] text-muted-foreground">{timeAgo(lead.created_at)}</span>
-          <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:text-green-700 hover:bg-green-50"
-            onClick={e => { e.stopPropagation(); openWhatsApp(lead.phone, `Olá ${lead.name}!`); }}>
-            <MessageCircle className="h-3.5 w-3.5" />
-          </Button>
+          <StartWhatsAppButton lead={lead} label="Converse" size="sm" className="h-7 px-2 text-[10px]" />
         </div>
       </div>
     </div>

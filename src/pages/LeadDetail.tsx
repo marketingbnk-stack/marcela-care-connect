@@ -2,14 +2,15 @@ import { CRMLayout } from "@/components/CRMLayout";
 import { useLeads } from "@/contexts/LeadsContext";
 import { useParams, useNavigate } from "react-router-dom";
 import { PIPELINE_STAGES, SOURCE_COLORS } from "@/lib/constants";
-import { formatPhone, formatDateTime, openWhatsApp } from "@/lib/whatsapp";
+import { formatPhone, formatDateTime } from "@/lib/whatsapp";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, ArrowLeft, Phone, Mail, MapPin, User, Clock } from "lucide-react";
+import { ArrowLeft, Phone, Mail, MapPin, User, Clock } from "lucide-react";
+import { StartWhatsAppButton } from "@/components/inbox/StartWhatsAppButton";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -62,12 +63,7 @@ export default function LeadDetail() {
               </div>
             </div>
           </div>
-          <Button
-            className="bg-green-600 hover:bg-green-700 text-primary-foreground gap-2"
-            onClick={() => openWhatsApp(lead.phone, `Olá ${lead.name}, tudo bem? Aqui é da clínica Dra. Marcela Cammarota!`)}
-          >
-            <MessageCircle className="h-4 w-4" /> WhatsApp
-          </Button>
+          <StartWhatsAppButton lead={lead} label="Iniciar conversa" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
