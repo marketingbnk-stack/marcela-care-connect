@@ -384,21 +384,68 @@ serve(async (req) => {
       console.log("[mega-webhook] media stored:", storedMediaUrl);
     }
 
-    // 4) Insere mensagem
+    // 4) Insere mensagem (ou atualiza se for eco do que NÓS enviamos)
     if (convId) {
-      const { error: msgErr } = await supabase.from("chat_messages").insert({
-        conversation_id: convId,
-        role: fromMe ? "assistant" : "user",
-        direction: fromMe ? "outbound" : "inbound",
-        content: content || `[${mediaType || "mídia"}${mediaFileName ? `: ${mediaFileName}` : ""}]`,
-        whatsapp_message_id: messageId,
-        media_url: storedMediaUrl,
-        media_type: mediaType,
-        sender_name: name || null,
-        status: "delivered",
-        metadata: mediaFileName ? { file_name: mediaFileName, mime: mediaMime } : {},
-      });
-      if (msgErr) console.error("[mega-webhook] msg err:", msgErr);
+      const finalContent = content || `[${mediaType || "mídia"}${mediaFileName ? `: ${mediaFileName}` : ""}]`;
+
+      // dedupe extra: se vier eco fromMe, tentamos casar com nossa mensagem já salva
+
+      // dedupe por id antes de inserir (segurança extra)
+      let alreadyExists = false;
+      if (messageId) {
+        const { data: dup2 } = await supabase
+          .from("chat_messages")
+          .select("id")
+          .eq("whatsapp_message_id", messageId)
+          .maybeSingle();
+        if (dup2) alreadyExists = true;
+      }
+
+      // Match por conteúdo/mídia recente (eco do nosso envio)
+      if (fromMe && !alreadyExists) {
+        const sinceIso = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+        const { data: candidates } = await supabase
+          .from("chat_messages")
+          .select("id, whatsapp_message_id, content, media_type")
+          .eq("conversation_id", convId)
+          .eq("direction", "outbound")
+          .gte("created_at", sinceIso)
+          .order("created_at", { ascending: false })
+          .limit(20);
+
+        const match = (candidates || []).find(c => {
+          if (c.whatsapp_message_id) return false; // já tem id, não é a nossa
+          if (mediaType && c.media_type === mediaType) return true;
+          if (!mediaType && content && c.content === content) return true;
+          return false;
+        });
+
+        if (match) {
+          // Atualiza a msg existente com o id e marca como entregue
+          await supabase.from("chat_messages")
+            .update({ whatsapp_message_id: messageId, status: "delivered" })
+            .eq("id", match.id);
+          alreadyExists = true;
+        }
+      }
+
+      if (!alreadyExists) {
+        const { error: msgErr } = await supabase.from("chat_messages").insert({
+          conversation_id: convId,
+          role: fromMe ? "assistant" : "user",
+          direction: fromMe ? "outbound" : "inbound",
+          content: finalContent,
+          whatsapp_message_id: messageId,
+          media_url: storedMediaUrl,
+          media_type: mediaType,
+          sender_name: name || null,
+          status: "delivered",
+          metadata: mediaFileName ? { file_name: mediaFileName, mime: mediaMime } : {},
+        });
+        if (msgErr) console.error("[mega-webhook] msg err:", msgErr);
+      } else {
+        console.log("[mega-webhook] eco do envio próprio — não duplicado");
+      }
     }
 
     if (leadId) {
