@@ -2,16 +2,17 @@ import { useLeads } from "@/contexts/LeadsContext";
 import { PIPELINE_STAGES, PIPE1_STAGES, PIPE2_STAGES, SPECIAL_STAGES, SOURCE_COLORS } from "@/lib/constants";
 import type { PipelineStage } from "@/lib/constants";
 import type { Lead } from "@/lib/types";
-import { formatPhone, formatDateTime, openWhatsApp } from "@/lib/whatsapp";
+import { formatPhone, formatDateTime } from "@/lib/whatsapp";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { MessageCircle, Phone, Mail, MapPin, User, Clock, Calendar, ListChecks, CheckCircle2 } from "lucide-react";
+import { Phone, Mail, MapPin, User, Clock, Calendar, ListChecks, CheckCircle2 } from "lucide-react";
 import { LeadAttachments } from "@/components/LeadAttachments";
 import { LeadAppointments } from "@/components/LeadAppointments";
+import { StartWhatsAppButton } from "@/components/inbox/StartWhatsAppButton";
 import { usePipelineNextSteps } from "@/hooks/usePipelineNextSteps";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -171,12 +172,7 @@ export function LeadDetailDialog({ lead, open, onOpenChange }: LeadDetailDialogP
           </div>
 
           {/* WhatsApp */}
-          <Button
-            className="w-full bg-green-600 hover:bg-green-700 text-primary-foreground gap-2"
-            onClick={() => openWhatsApp(lead.phone, `Olá ${lead.name}, tudo bem? Aqui é da clínica Dra. Marcela Cammarota!`)}
-          >
-            <MessageCircle className="h-4 w-4" /> Enviar WhatsApp
-          </Button>
+          <StartWhatsAppButton lead={lead} label="Iniciar conversa" className="w-full" onStarted={() => onOpenChange(false)} />
 
           <Separator />
 
