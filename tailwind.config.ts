@@ -58,6 +58,10 @@ export default {
         "blue-medium": "hsl(var(--blue-medium))",
         "blue-light": "hsl(var(--blue-light))",
         "blue-lighter": "hsl(var(--blue-lighter))",
+        whatsapp: {
+          DEFAULT: "hsl(var(--whatsapp))",
+          foreground: "hsl(var(--whatsapp-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
