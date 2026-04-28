@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { CRMLayout } from "@/components/CRMLayout";
 import { useConversations } from "@/hooks/useConversations";
 import { ConversationsList } from "@/components/inbox/ConversationsList";
@@ -9,12 +10,18 @@ import { MessageCircle, PanelRightClose, PanelRightOpen, ArrowLeft } from "lucid
 
 export default function Inbox() {
   const { conversations, loading } = useConversations();
+  const [searchParams] = useSearchParams();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [contactOpen, setContactOpen] = useState(true);
 
   useEffect(() => {
+    const requestedConversation = searchParams.get("conversation");
+    if (requestedConversation && conversations.some(c => c.id === requestedConversation)) {
+      setSelectedId(requestedConversation);
+      return;
+    }
     if (!selectedId && conversations.length > 0) setSelectedId(conversations[0].id);
-  }, [conversations, selectedId]);
+  }, [conversations, selectedId, searchParams]);
 
   const selected = conversations.find(c => c.id === selectedId) || null;
 
