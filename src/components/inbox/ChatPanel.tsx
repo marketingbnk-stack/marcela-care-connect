@@ -324,6 +324,38 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
           </div>
         ) : (
           <div className="flex gap-2 items-end">
+            <Popover open={emojiOpen} onOpenChange={setEmojiOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-11 w-11 shrink-0"
+                  disabled={sending}
+                  title="Emoji"
+                >
+                  <Smile className="h-5 w-5 text-muted-foreground" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                side="top"
+                align="start"
+                className="p-0 border-0 bg-transparent shadow-none w-auto"
+              >
+                <EmojiPicker
+                  onEmojiClick={(d: EmojiClickData) => {
+                    insertEmoji(d.emoji);
+                  }}
+                  emojiStyle={EmojiStyle.NATIVE}
+                  theme={Theme.AUTO}
+                  width={340}
+                  height={400}
+                  searchPlaceholder="Buscar emoji..."
+                  previewConfig={{ showPreview: false }}
+                  skinTonesDisabled
+                  lazyLoadEmojis
+                />
+              </PopoverContent>
+            </Popover>
             <Button
               variant="ghost"
               size="icon"
@@ -335,6 +367,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
               <Paperclip className="h-5 w-5 text-muted-foreground" />
             </Button>
             <Textarea
+              ref={textareaRef}
               value={text}
               onChange={e => setText(e.target.value)}
               onKeyDown={e => {
