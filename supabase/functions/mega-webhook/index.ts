@@ -313,7 +313,7 @@ serve(async (req) => {
     let convId: string | null = null;
     const { data: existingConv } = await supabase
       .from("chat_conversations")
-      .select("id, unread_count")
+      .select("id, unread_count, avatar_url")
       .eq("whatsapp_number", phone)
       .eq("channel", "whatsapp")
       .maybeSingle();
@@ -322,15 +322,22 @@ serve(async (req) => {
 
     if (existingConv) {
       convId = existingConv.id;
-      await supabase.from("chat_conversations").update({
+      const update: Record<string, unknown> = {
         last_message_at: new Date().toISOString(),
         last_message_preview: previewText,
         unread_count: fromMe ? existingConv.unread_count : (existingConv.unread_count || 0) + 1,
         contact_name: name || undefined,
         lead_id: leadId,
         status: "active",
-      }).eq("id", convId);
+      };
+      // Busca avatar se ainda não tem
+      if (!existingConv.avatar_url) {
+        const avatar = await fetchAndStoreContactAvatar(supabase, phone);
+        if (avatar) update.avatar_url = avatar;
+      }
+      await supabase.from("chat_conversations").update(update).eq("id", convId);
     } else {
+      const avatar = await fetchAndStoreContactAvatar(supabase, phone);
       const { data: newConv, error: convErr } = await supabase
         .from("chat_conversations")
         .insert({
@@ -342,6 +349,7 @@ serve(async (req) => {
           last_message_at: new Date().toISOString(),
           last_message_preview: previewText,
           unread_count: fromMe ? 0 : 1,
+          avatar_url: avatar,
         })
         .select("id")
         .single();
