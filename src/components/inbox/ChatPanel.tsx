@@ -180,7 +180,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
       return <video src={m.media_url} controls className="rounded-md max-w-full max-h-64 mb-1" />;
     }
     if (m.media_type === "audio") {
-      return <audio src={m.media_url} controls className="w-full mb-1" />;
+      return <audio src={m.media_url} controls preload="metadata" className="w-[260px] max-w-full mb-1" />;
     }
     if (m.media_type === "document") {
       return (
