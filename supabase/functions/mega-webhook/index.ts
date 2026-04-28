@@ -388,19 +388,7 @@ serve(async (req) => {
     if (convId) {
       const finalContent = content || `[${mediaType || "mídia"}${mediaFileName ? `: ${mediaFileName}` : ""}]`;
 
-      // Se for eco de mensagem nossa (fromMe), procura msg outbound recente sem whatsapp_message_id
-      // pra evitar duplicação no painel
-      if (fromMe) {
-        const sinceIso = new Date(Date.now() - 2 * 60 * 1000).toISOString();
-        const { data: recent } = await supabase
-          .from("chat_messages")
-          .select("id, whatsapp_message_id, content, media_type")
-          .eq("conversation_id", convId)
-          .eq("direction", "outbound")
-          .gte("created_at", sinceIso)
-          .order("created_at", { ascending: false })
-          .limit: 10 as any;
-      }
+      // dedupe extra: se vier eco fromMe, tentamos casar com nossa mensagem já salva
 
       // dedupe por id antes de inserir (segurança extra)
       let alreadyExists = false;
