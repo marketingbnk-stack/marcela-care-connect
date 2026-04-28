@@ -65,7 +65,8 @@ export default function Leads() {
       const matchSearch = l.name.toLowerCase().includes(search.toLowerCase()) || l.phone.includes(search);
       const matchSource = sourceFilter === "all" || l.source === sourceFilter;
       const matchStage = stageFilter === "all" || l.stage === stageFilter;
-      return matchSearch && matchSource && matchStage;
+      const matchCampaign = campaignFilter === "all" || l.utm_campaign === campaignFilter;
+      return matchSearch && matchSource && matchStage && matchCampaign;
     });
     if (sortField) {
       result = [...result].sort((a, b) => {
