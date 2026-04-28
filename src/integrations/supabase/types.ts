@@ -110,6 +110,7 @@ export type Database = {
         Row: {
           agent_id: string | null
           assigned_to: string | null
+          avatar_url: string | null
           channel: string
           contact_name: string | null
           created_at: string
@@ -129,6 +130,7 @@ export type Database = {
         Insert: {
           agent_id?: string | null
           assigned_to?: string | null
+          avatar_url?: string | null
           channel?: string
           contact_name?: string | null
           created_at?: string
@@ -148,6 +150,7 @@ export type Database = {
         Update: {
           agent_id?: string | null
           assigned_to?: string | null
+          avatar_url?: string | null
           channel?: string
           contact_name?: string | null
           created_at?: string
