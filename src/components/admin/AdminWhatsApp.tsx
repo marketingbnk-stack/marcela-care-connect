@@ -20,11 +20,8 @@ export function AdminWhatsApp() {
   const [webhookUrl, setWebhookUrl] = useState("");
 
   useEffect(() => {
-    supabase.from("integration_settings").select("value").eq("key", "supabase_url").maybeSingle()
-      .then(() => {
-        const projectRef = "qfwlyvkumdplegppeqwx";
-        setWebhookUrl(`https://${projectRef}.supabase.co/functions/v1/whatsapp-webhook`);
-      });
+    const projectRef = "qfwlyvkumdplegppeqwx";
+    setWebhookUrl(`https://${projectRef}.supabase.co/functions/v1/mega-webhook`);
   }, []);
 
   const refresh = async () => {
@@ -37,7 +34,12 @@ export function AdminWhatsApp() {
     }
   };
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    refresh();
+    // auto-refresh a cada 30s
+    const i = setInterval(refresh, 30000);
+    return () => clearInterval(i);
+  }, []);
 
   const handleQr = async () => {
     try {
@@ -61,12 +63,17 @@ export function AdminWhatsApp() {
     toast.success("Desconectado");
   };
 
+  const isConnected = (() => {
+    const s = statusData?.status || "";
+    return s === "connected" || s === "open" || s === "authenticated";
+  })();
+
   const statusBadge = () => {
     if (!statusData?.configured) return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Não configurado</Badge>;
     const s = statusData.status || "unknown";
-    if (s === "connected" || s === "open" || s === "authenticated") return <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Conectado</Badge>;
+    if (isConnected) return <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Conectado</Badge>;
     if (s === "qr_pending" || s === "connecting") return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">Aguardando QR</Badge>;
-    return <Badge variant="outline">{s}</Badge>;
+    return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Desconectado ({s})</Badge>;
   };
 
   return (
@@ -78,17 +85,29 @@ export function AdminWhatsApp() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">Status:</span>
-              {statusBadge()}
-              {statusData?.phone && (
-                <span className="text-xs text-muted-foreground">📱 {statusData.phone}</span>
-              )}
+          {/* Indicador grande de status */}
+          <div className={`p-4 rounded-lg border-2 flex items-center gap-3 ${
+            isConnected
+              ? "bg-green-50 border-green-200"
+              : statusData?.configured
+                ? "bg-red-50 border-red-200"
+                : "bg-amber-50 border-amber-200"
+          }`}>
+            <div className={`h-3 w-3 rounded-full ${isConnected ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
+            <div className="flex-1">
+              <p className="text-sm font-semibold">
+                {isConnected ? "WhatsApp conectado e pronto" : statusData?.configured ? "WhatsApp desconectado — escaneie o QR Code" : "Mega API não configurada"}
+              </p>
+              {statusData?.phone && <p className="text-xs text-muted-foreground">📱 {statusData.phone}</p>}
             </div>
             <Button variant="outline" size="sm" onClick={refresh} disabled={loading} className="gap-2">
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Atualizar
             </Button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">Status detalhado:</span>
+            {statusBadge()}
           </div>
 
           {!statusData?.configured && (
@@ -96,7 +115,7 @@ export function AdminWhatsApp() {
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <div>
                 <p className="font-medium mb-1">Credenciais da Mega API ainda não configuradas.</p>
-                <p>Adicione 3 secrets no backend: <code className="bg-amber-100 px-1 rounded">MEGA_API_HOST</code>, <code className="bg-amber-100 px-1 rounded">MEGA_API_TOKEN</code> e <code className="bg-amber-100 px-1 rounded">MEGA_API_INSTANCE_KEY</code>. A interface já está pronta — basta plugar.</p>
+                <p>Adicione 3 secrets no backend: <code className="bg-amber-100 px-1 rounded">MEGA_API_HOST</code>, <code className="bg-amber-100 px-1 rounded">MEGA_API_TOKEN</code> e <code className="bg-amber-100 px-1 rounded">MEGA_API_INSTANCE_KEY</code>.</p>
               </div>
             </div>
           )}

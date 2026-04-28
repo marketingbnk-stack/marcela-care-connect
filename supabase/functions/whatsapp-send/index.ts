@@ -73,8 +73,15 @@ serve(async (req) => {
       });
       const out = await resp.json().catch(() => ({}));
       console.log("[whatsapp-send] mega response:", resp.status, JSON.stringify(out).slice(0, 300));
-      if (!resp.ok) throw new Error(out?.message || `Mega API erro ${resp.status}`);
-      waId = out?.messageId || out?.id || null;
+      if (!resp.ok) {
+        const rawMsg = out?.message || out?.error || `Mega API erro ${resp.status}`;
+        // Mensagem amigável quando a instância está desconectada
+        if (String(rawMsg).toLowerCase().includes("not logged in") || resp.status === 403) {
+          throw new Error("WhatsApp desconectado. Peça ao admin para reconectar a instância (escanear QR Code).");
+        }
+        throw new Error(rawMsg);
+      }
+      waId = out?.messageId || out?.id || out?.key?.id || null;
       sendStatus = "sent";
     } else {
       console.log("[whatsapp-send] credenciais Mega API ausentes — gravando como rascunho");
