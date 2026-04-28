@@ -240,7 +240,7 @@ export function ChatPanel({ conversation, onBack, onToggleContact, contactOpen }
 
       {/* Mensagens */}
       <ScrollArea
-        className="flex-1 min-h-0 px-5 py-4"
+        className="flex-1 min-h-0 px-5 py-4 [&>[data-radix-scroll-area-viewport]>div]:!block"
         ref={scrollRef as any}
         style={{
           backgroundImage:
