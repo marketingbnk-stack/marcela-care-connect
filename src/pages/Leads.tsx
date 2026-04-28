@@ -83,7 +83,7 @@ export default function Leads() {
       });
     }
     return result;
-  }, [leads, search, sourceFilter, stageFilter, sortField, sortDir]);
+  }, [leads, search, sourceFilter, stageFilter, campaignFilter, sortField, sortDir]);
 
   return (
     <CRMLayout title="Leads">
