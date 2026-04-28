@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.n8n-whatsapp-webhook]
 verify_jwt = false
+
+[functions.mega-webhook]
+verify_jwt = false
+
+[functions.lead-capture]
+verify_jwt = false
