@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { NewLeadDialog } from "@/components/NewLeadDialog";
 import { CrmAssistant } from "@/components/CrmAssistant";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface CRMLayoutProps {
   children: React.ReactNode;
@@ -24,10 +25,13 @@ export function CRMLayout({ children, title }: CRMLayoutProps) {
               <SidebarTrigger />
               {title && <h2 className="text-lg font-semibold text-foreground">{title}</h2>}
             </div>
-            <Button onClick={() => setNewLeadOpen(true)} className="bg-accent hover:bg-accent/90 text-accent-foreground gap-2">
-              <Plus className="h-4 w-4" />
-              Novo Lead
-            </Button>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Button onClick={() => setNewLeadOpen(true)} className="bg-accent hover:bg-accent/90 text-accent-foreground gap-2">
+                <Plus className="h-4 w-4" />
+                Novo Lead
+              </Button>
+            </div>
           </header>
           <main className="flex-1 min-h-0 overflow-auto p-6 bg-secondary/30">
             {children}
