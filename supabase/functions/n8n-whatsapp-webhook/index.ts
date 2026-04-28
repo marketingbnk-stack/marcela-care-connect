@@ -31,8 +31,52 @@ serve(async (req) => {
   );
 
   try {
-    const body = await req.json().catch(() => ({}));
-    console.log("[n8n-whatsapp-webhook] payload:", JSON.stringify(body).slice(0, 800));
+    // Aceita JSON, string JSON, form-urlencoded e objetos aninhados
+    let body: any = {};
+    const contentType = req.headers.get("content-type") || "";
+    const rawText = await req.text();
+    console.log("[n8n-whatsapp-webhook] content-type:", contentType);
+    console.log("[n8n-whatsapp-webhook] raw:", rawText.slice(0, 1000));
+
+    if (rawText) {
+      try {
+        body = JSON.parse(rawText);
+      } catch {
+        // form-urlencoded
+        if (contentType.includes("application/x-www-form-urlencoded")) {
+          const params = new URLSearchParams(rawText);
+          body = Object.fromEntries(params.entries());
+        } else {
+          body = { raw: rawText };
+        }
+      }
+    }
+
+    // Se o n8n empacotou tudo dentro de uma chave string (bug comum), desempacota
+    if (body && typeof body === "object" && !Array.isArray(body)) {
+      const keys = Object.keys(body);
+      // Caso 1: única chave que é JSON string
+      if (keys.length === 1) {
+        const onlyKey = keys[0];
+        const onlyVal = body[onlyKey];
+        // Tenta parsear a chave como JSON
+        try {
+          const parsedKey = JSON.parse(onlyKey);
+          if (parsedKey && typeof parsedKey === "object") body = parsedKey;
+        } catch {}
+        // Tenta parsear o valor como JSON
+        if (typeof onlyVal === "string") {
+          try {
+            const parsedVal = JSON.parse(onlyVal);
+            if (parsedVal && typeof parsedVal === "object") body = parsedVal;
+          } catch {}
+        }
+      }
+      // Caso 2: campo "body" ou "data" dentro do payload (n8n webhook trigger)
+      if (body.body && typeof body.body === "object") body = { ...body.body, ...body };
+    }
+
+    console.log("[n8n-whatsapp-webhook] parsed:", JSON.stringify(body).slice(0, 800));
 
     // Aceita formato simples (recomendado) OU formato bruto da Mega API
     const phoneRaw =
