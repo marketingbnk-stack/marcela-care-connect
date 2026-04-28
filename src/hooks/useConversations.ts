@@ -6,6 +6,7 @@ export interface Conversation {
   channel: string;
   whatsapp_number: string | null;
   contact_name: string | null;
+  avatar_url: string | null;
   lead_id: string | null;
   assigned_to: string | null;
   unread_count: number;

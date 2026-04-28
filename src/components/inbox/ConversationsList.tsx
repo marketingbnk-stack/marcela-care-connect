@@ -93,8 +93,17 @@ export function ConversationsList({ conversations, selectedId, onSelect }: Props
                 isSelected && "bg-secondary"
               )}
             >
-              <div className="h-10 w-10 rounded-full bg-accent/15 text-accent font-semibold flex items-center justify-center shrink-0">
-                {initials}
+              <div className="h-10 w-10 rounded-full bg-accent/15 text-accent font-semibold flex items-center justify-center shrink-0 overflow-hidden">
+                {c.avatar_url ? (
+                  <img
+                    src={c.avatar_url}
+                    alt={c.contact_name || "contato"}
+                    className="h-full w-full object-cover"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                  />
+                ) : (
+                  initials
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">

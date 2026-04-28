@@ -105,6 +105,77 @@ async function downloadAndStoreMedia(
   }
 }
 
+// Busca a foto de perfil do contato na Mega API, baixa e salva no storage
+async function fetchAndStoreContactAvatar(
+  supabase: any,
+  phone: string,
+): Promise<string | null> {
+  try {
+    const host = normalizeHost(Deno.env.get("MEGA_API_HOST"));
+    const apiToken = Deno.env.get("MEGA_API_TOKEN");
+    const instanceKey = Deno.env.get("MEGA_API_INSTANCE_KEY");
+    if (!host || !apiToken || !instanceKey) return null;
+
+    const jid = `${phone}@s.whatsapp.net`;
+
+    const candidates: Array<{ url: string; method: string; body: any }> = [
+      { url: `${host}/rest/instance/${instanceKey}/profilePicture?jid=${encodeURIComponent(jid)}`, method: "GET", body: null },
+      { url: `${host}/rest/instance/profilePicture/${instanceKey}`, method: "POST", body: { jid } },
+      { url: `${host}/rest/chat/getProfilePicture/${instanceKey}`, method: "POST", body: { jid } },
+      { url: `${host}/rest/chat/profilePicture/${instanceKey}`, method: "POST", body: { number: phone } },
+    ];
+
+    let picUrl: string | null = null;
+    for (const c of candidates) {
+      try {
+        const r = await fetch(c.url, {
+          method: c.method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiToken}`,
+          },
+          body: c.body ? JSON.stringify(c.body) : undefined,
+        });
+        if (!r.ok) continue;
+        const out = await r.json().catch(() => ({}));
+        picUrl =
+          out?.profilePictureUrl ||
+          out?.url ||
+          out?.eurl ||
+          out?.data?.url ||
+          out?.data?.profilePictureUrl ||
+          out?.result?.profilePictureUrl ||
+          null;
+        if (picUrl) break;
+      } catch {
+        // tenta próximo
+      }
+    }
+
+    if (!picUrl) {
+      console.log("[mega-webhook] sem foto de perfil para", phone);
+      return null;
+    }
+
+    const imgRes = await fetch(picUrl);
+    if (!imgRes.ok) return null;
+    const buf = new Uint8Array(await imgRes.arrayBuffer());
+    const fileName = `avatars/${phone}.jpg`;
+
+    const { error } = await supabase.storage
+      .from("whatsapp-media")
+      .upload(fileName, buf, { contentType: "image/jpeg", upsert: true });
+    if (error) {
+      console.error("[mega-webhook] avatar upload err:", error);
+      return null;
+    }
+    const { data: pub } = supabase.storage.from("whatsapp-media").getPublicUrl(fileName);
+    return pub?.publicUrl ? `${pub.publicUrl}?v=${Date.now()}` : null;
+  } catch (e) {
+    console.error("[mega-webhook] fetchAndStoreContactAvatar error:", e);
+    return null;
+  }
+}
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -242,7 +313,7 @@ serve(async (req) => {
     let convId: string | null = null;
     const { data: existingConv } = await supabase
       .from("chat_conversations")
-      .select("id, unread_count")
+      .select("id, unread_count, avatar_url")
       .eq("whatsapp_number", phone)
       .eq("channel", "whatsapp")
       .maybeSingle();
@@ -251,15 +322,22 @@ serve(async (req) => {
 
     if (existingConv) {
       convId = existingConv.id;
-      await supabase.from("chat_conversations").update({
+      const update: Record<string, unknown> = {
         last_message_at: new Date().toISOString(),
         last_message_preview: previewText,
         unread_count: fromMe ? existingConv.unread_count : (existingConv.unread_count || 0) + 1,
         contact_name: name || undefined,
         lead_id: leadId,
         status: "active",
-      }).eq("id", convId);
+      };
+      // Busca avatar se ainda não tem
+      if (!existingConv.avatar_url) {
+        const avatar = await fetchAndStoreContactAvatar(supabase, phone);
+        if (avatar) update.avatar_url = avatar;
+      }
+      await supabase.from("chat_conversations").update(update).eq("id", convId);
     } else {
+      const avatar = await fetchAndStoreContactAvatar(supabase, phone);
       const { data: newConv, error: convErr } = await supabase
         .from("chat_conversations")
         .insert({
@@ -271,6 +349,7 @@ serve(async (req) => {
           last_message_at: new Date().toISOString(),
           last_message_preview: previewText,
           unread_count: fromMe ? 0 : 1,
+          avatar_url: avatar,
         })
         .select("id")
         .single();
